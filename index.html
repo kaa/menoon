@@ -13,12 +13,21 @@
 				console.log(arguments)
 				$(document.body).append("<div>Message: "+Array.prototype.slice.call(arguments).join(" ")+"</div>")
 			}
+			function keys(hash) {
+				var found = []
+				for( var k in hash ) found.push(k);
+				return found;
+			}
+			function fixName(name) {
+				return name.replace(/\w\(/," (")
+			}
 
 			(function() {
 				var radius = 200
 				var apiUser = "mioslabs"
 				var apiPass = "kaakaa"
 				var apiUrl = "api.asp"
+				var elements = {}
 
 				initialize();
 
@@ -60,8 +69,9 @@
 								.map(function(i,e){ 
 									return {
 										code: e.getAttribute("code"),
-										lat: position.coords.latitude,
-										lng: position.coords.longitude
+										lat: Number(e.getAttribute("lat")),
+										lng: Number(e.getAttribute("lon")),
+										distance: Number(e.getAttribute("dist"))
 									}
 								})
 							)
@@ -80,7 +90,7 @@
 					}
 					message("Requesting schedule(s) for",stops.length,"stop(s)")
 					stops.map(function(i,stop){ 
-						requestStop(stop,receivedStop)
+						requestStop(stop,displayStop)
 					})
 				}
 
@@ -117,37 +127,51 @@
 					}
 				}
 
-				function receivedStop(stop) {
-					message("Found stop",stop.name,"at",stop.address,stop.city,"with",stop.schedule.length,"entries");
-					var list;
-					$("#results").append(
-						$("<div>").append(
-							$("<h3>")
-								.text(stop.name)
-								.append(" ",$("<small>").text("(at "+stop.address+" in "+stop.city+")")
-							),
-							$("<p>").append(
-								"Destinations: ",
-								destinations = $("<span>")
-							),
-							list = $("<ul>")
-						)
-					)
-					var destinationsFound = {}
+				function displayStop(stop) {
+					var element = elements[stop.code]
+					if(!element) {
+						element = $(
+							"<div>"+
+								"<h3><span></span> <small></small></h3>"+
+								"<p>Line(s) <strong class=\"lines\"></strong> "+
+								"Destination(s) <strong class=\"destinations\"></strong></p>"+
+								"<ul></ul>"+
+							"</div>")
+						elements[stop.code] = element
+						$("#results").append(element)
+					}
+					if(stop.schedule.length==0) {
+						element.remove()
+						delete elements[stop.code]
+						return
+					}
+					message("Update for stop",stop.code," with ",stop.schedule.length,"entries")
+					var destinations = {}, lines = {};
 					stop.schedule.map(function(entry){
-						list.append(
-							$("<li>").append(
-								$("<em>").text(entry.time),
-								" line ",
-								$("<strong>").text(entry.line),
-								" to "+entry.destination
-							)
-						)
-						if(!destinationsFound[entry.destination]) {
-							destinationsFound[entry.destination] = true;
-							destinations.append(entry.destination+" ")
-						}
+						destinations[fixName(entry.destination)] = true
+						lines[entry.line] = true
 					})
+					element.find("h3 span")
+						.text(fixName(stop.name))
+					element.find("h3 small")
+						.text("("+stop.address+" in "+stop.city+", "+stop.distance+"m)")
+					element.find("p strong.lines")
+						.text(keys(lines).join(", "))
+					element.find("p strong.destinations")
+						.text(keys(destinations).join(", "))
+
+					var list = element.find("ul").empty()
+					stop.schedule.map(function(entry) {
+						list.append(createScheduleEntry(entry))
+					})
+				}
+				function createScheduleEntry(entry) {
+					return $("<li>").append(
+						$("<em>").text(entry.time),
+						" line ",
+						$("<strong>").text(entry.line),
+						" to "+entry.destination
+					)
 				}
 			})();
 		</script>
