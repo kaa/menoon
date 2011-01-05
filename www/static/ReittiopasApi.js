@@ -24,8 +24,8 @@ ReittiopasApi.prototype.findStops = function(position,success,error) {
 			))
 		},
 		error: function(request,status) {
-			error("Unable to retrieve stops");
-			console.error("Details", status, request.responseText)
+			Log.error("Unable to retrieve stops");
+			console.log("Details", status, request.responseText)
 		}
 	});
 }
@@ -45,8 +45,8 @@ ReittiopasApi.prototype.getSchedule = function(stop,success,error) {
 			success(stop)
 		},
 		error: function(request,status) {
-			error("Unable to retrieve schedule for stop "+code);
-			console.error("Details", status, request.responseText)
+			Log.error("Unable to retrieve schedule for stop "+code);
+			console.log("Details", status, request.responseText)
 		}
 	})
 }

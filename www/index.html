@@ -4,24 +4,53 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 		<script src="static/ReittiopasApi.js"></script>
 		<script src="static/DummyApi.js"></script>
+		<script src="static/jquery.jgrowl.js"></script>
 		<link type="text/css" rel="stylesheet" href="static/style/screen.css"/>
+		<style>
+			#jGrowl { position: absolute; position: fixed; top: 0; text-align: right; right: 0 }
+				#jGrowl div { background: white; opacity: 0.8 }
+		</style>
 	</head>
 	<body>
 		<div id="results"></div>
-		<a id="logToggle" href="#">Toggle log</a>
-		<div id="log"></div>
 		<script type="text/javascript">
-			function error() {
-				console.log(arguments)
-				$("#log").append("Error: "+Array.prototype.slice.call(arguments).join(" ")+"<br/>")
+			// Parse querystring
+			var queryString = {}
+			window.location.search
+				.replace(/^\?/,"")
+				.split("&")
+				.map(function(p){ 
+					var pair =  p.split("=")
+					queryString[pair[0]] = pair[1]
+				})
+		
+			function Log(level) {
+				Log.level = level||1;
+				$.jGrowl.defaults.closer = false
+				$.jGrowl.defaults.closeTemplate = ""
 			}
-			function message() {
+			Log.error = function() {
+				if(Log.level<1) return
 				console.log(arguments)
-				$("#log").append("Message: "+Array.prototype.slice.call(arguments).join(" ")+"<br/>")
+				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"error"})
 			}
-			$("#log").hide()
-			$("#logToggle").click(function() { $("#log").toggle() })
-			
+			Log.warn = function() {
+				if(Log.level<2) return
+				console.log(arguments)
+				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"warn"})
+			}
+			Log.message = function() {
+				if(Log.level<3) return
+				console.log(arguments)
+				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"message"})
+			}
+			Log.verbose = function() {
+				if(Log.level<4) return
+				console.log(arguments)
+				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"verbose"})
+			}
+			new Log(queryString["v"])
+
 			function keys(hash) {
 				var found = []
 				for( var k in hash ) found.push(k);
@@ -32,29 +61,31 @@
 			}
 			
 			var radius = 200
-//			var api = new DummyApi("api.asp","mioslabs","kaakaa")
-			var api = new ReittiopasApi("api.asp")
+			if(queryString["d"]) {
+				var api = new DummyApi()
+			} else {
+				var api = new ReittiopasApi("api.asp")
+			}
+
 			var elements = {}
-
-
 			var gl = navigator.geolocation
 			if(!gl) {
-				error("Geolocation service unavailable")
+				Log.error("Geolocation service unavailable")
 			} else {
 				getPosition()
 			}
 
 			var positionRetries = 0
 			function getPosition() {
-				message("Requesting position");
+				Log.message("Requesting position");
 				gl.getCurrentPosition(
 					positionUpdated,
 					function(err) {
 						if(++positionRetries>2) {
-							error("Unable to get position",err)
+							Log.error("Unable to get position",err)
 							return
 						}
-						message("Retrying position request")
+						Log.message("Retrying position request")
 						getPosition()
 					}, { timeout: 2000 }
 				)
@@ -62,17 +93,17 @@
 			
 			function positionUpdated(position) {
 				$("#results").empty();
-				message("At ",position.coords.latitude,"(lat)",position.coords.longitude+"(lng)")
-				message("Requesting stops");
+				Log.message("At ",position.coords.latitude,"(lat)",position.coords.longitude+"(lng)")
+				Log.verbose("Requesting stops");
 				api.findStops(position,receivedStops)
 			}
 
 			function receivedStops(stops) {
 				if(stops.length==0) {
-					message("No stops found within a",radius,"meter radius")
+					Log.message("No stops found within a",radius,"meter radius")
 					return
 				}
-				message("Requesting schedule(s) for",stops.length,"stop(s)")
+				Log.verbose("Requesting schedule(s) for",stops.length,"stop(s)")
 				stops.map(function(stop){ 
 					api.getSchedule(stop,displayStop)
 				})
@@ -85,8 +116,7 @@
 					elements[stop.code] = element
 					$("#results").append(element)
 				}
-				message("Update for stop",stop.code," with ",stop.schedule.length,"entries")
-				console.log(stop);
+				Log.verbose("Update for stop",stop.code," with ",stop.schedule.length,"entries")
 				if(stop.schedule.length==0) {
 					element.remove()
 					delete elements[stop.code]
