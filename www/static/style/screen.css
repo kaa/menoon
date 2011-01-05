@@ -18,7 +18,7 @@ html { font-family: sans-serif; }
 		position: absolute; bottom: 5px; right: 5px; }
 .stop .lines { margin: 0; font-size: 0.9em; margin: 3px 0 5px 52px; }
 .stop .imminent { overflow: hidden; margin: 0; padding: 8px 0 0 0; }
-.stop .imminent li { width: 50%; float: left; min-width: 200px; margin-bottom: 8px; }
+.stop .imminent li { width: 50%; float: left; min-width: 200px; margin-bottom: 8px; list-style-type: none }
 .stop .imminent li div { padding-left: 100px; position: relative }
 	.stop .imminent li .time { 
 		font-size: 1.6em; line-height: 1.2em; text-align: right;

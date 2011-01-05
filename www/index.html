@@ -1,9 +1,11 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script> -->
+		<script src="static/jquery-1.3.2.min.js"></script>
 		<script src="static/ReittiopasApi.js"></script>
 		<script src="static/DummyApi.js"></script>
+		<script src="static/Log.js"></script>
 		<script src="static/jquery.jgrowl.js"></script>
 		<link type="text/css" rel="stylesheet" href="static/style/screen.css"/>
 		<style>
@@ -24,38 +26,8 @@
 					queryString[pair[0]] = pair[1]
 				})
 		
-			function Log(level) {
-				Log.level = level||1;
-				$.jGrowl.defaults.closer = false
-				$.jGrowl.defaults.closeTemplate = ""
-			}
-			Log.error = function() {
-				if(Log.level<1) return
-				console.log(arguments)
-				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"error"})
-			}
-			Log.warn = function() {
-				if(Log.level<2) return
-				console.log(arguments)
-				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"warn"})
-			}
-			Log.message = function() {
-				if(Log.level<3) return
-				console.log(arguments)
-				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"message"})
-			}
-			Log.verbose = function() {
-				if(Log.level<4) return
-				console.log(arguments)
-				$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"verbose"})
-			}
 			new Log(queryString["v"])
 
-			function keys(hash) {
-				var found = []
-				for( var k in hash ) found.push(k);
-				return found;
-			}
 			function fixName(name) {
 				return name.replace(/(\w)?\(/, function($0,$1){return $1?$1+" (":$0})
 			}
@@ -72,21 +44,27 @@
 			if(!gl) {
 				Log.error("Geolocation service unavailable")
 			} else {
-				getPosition()
+				Log.message("Requesting position");
+				getPosition({ coords: { latitude: "21.6", longitude: "63.4" } })
 			}
 
 			var positionRetries = 0
-			function getPosition() {
-				Log.message("Requesting position");
+			function getPosition(fallbackPosition) {
 				gl.getCurrentPosition(
 					positionUpdated,
 					function(err) {
-						if(++positionRetries>2) {
-							Log.error("Unable to get position",err)
+						if(err.code==err.TIMEOUT && ++positionRetries<3) {
+							Log.verbose("Retrying position request")
+							getPosition(fallbackPosition)
 							return
 						}
-						Log.message("Retrying position request")
-						getPosition()
+						if(fallbackPosition) {
+							Log.message("Using fallback position")
+							positionUpdated(fallbackPosition)
+							return
+						}
+						Log.error("Unable to get position")
+						return
 					}, { timeout: 2000 }
 				)
 			}
@@ -110,34 +88,44 @@
 			}
 
 			function displayStop(stop) {
+				Log.verbose("Update for stop",stop.code," with ",stop.schedule.length,"entries")
+
+				// Ensure display element exists
 				var element = elements[stop.code]
 				if(!element) {
 					element = createDisplayTemplate()
 					elements[stop.code] = element
 					$("#results").append(element)
 				}
-				Log.verbose("Update for stop",stop.code," with ",stop.schedule.length,"entries")
+
+				// Hide stop if no scheudled departures
 				if(stop.schedule.length==0) {
 					element.remove()
 					delete elements[stop.code]
 					return
 				}
-				stop.schedule.map(function(entry){
-					element.addClass(typeFromLine(entry.line));
+
+				// Add class for each transport type
+				stop.schedule.map(function(entry){ 
+					element.addClass(typeFromLine(entry.line)) 
 				})
-				element.find("h3 .name")
-					.text(stop.name||"Unknown")
-				element.find("h3 .address")
-					.text((stop.address||"?")+" in "+(stop.city||"?"))
-				element.find("h3 .dir")
-					.text((stop.distance||"?")+"m")
-				displayDestinations(stop,element)
-				displayImminent(stop,element)
-				displaySchedule(stop,element)
+
+				// Update simple displays
+				var displayName = stop.name||"Unknown"
+				var displayAddress = (stop.address||"?")+" in "+(stop.city||"?")
+				var displayDistance = (stop.distance||"?")+"m"
+				element.find("h3 .name").text(displayName)
+				element.find("h3 .address").text(displayAddress)
+				element.find("h3 .dir").text(displayDistance)
+
+				// Update lists
+				displayDestinations(stop.schedule,element)
+				displayImminent(stop.schedule,element)
+				displaySchedule(stop.schedule,element)
 			}
-			function displayDestinations(stop,element) {
+			function displayDestinations(schedule,element) {
 				var destinations = {}
-				stop.schedule.map(function(entry){
+				schedule.map(function(entry){
 					var d = destinations[entry.destination]||{}
 					d[entry.line] = true
 					destinations[entry.destination] = d
@@ -159,9 +147,9 @@
 					list.append(e)
 				})
 			}
-			function displaySchedule(stop,element) {
+			function displaySchedule(schedule,element) {
 				var list = element.find(".schedule ul").empty()
-				stop.schedule
+				schedule
 					.filter(function(e){return e.time.getTime()>new Date().getTime()})
 					.slice(0,10)
 					.map(function(entry) {
@@ -174,9 +162,9 @@
 						))
 				})
 			}
-			function displayImminent(stop,element) {
+			function displayImminent(schedule,element) {
 				var list = element.find("ul.imminent").empty()
-				stop.schedule
+				schedule
 					.filter(function(e){return e.time>new Date()})
 					.slice(0,2)
 					.map(function(entry){
