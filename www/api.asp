@@ -1,7 +1,7 @@
 <%
 	Dim http
 	Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
-	http.Open "GET", "http://api.reittiopas.fi/public-ytv/fi/api/?"&Request.QueryString, False
+	http.Open "GET", "http://api.reittiopas.fi/public-ytv/fi/api/?"&Request.QueryString&"&user=mioslabs&pass=kaakaa", False
 	http.Send 
 	Response.Clear
 	Response.Status = http.Status

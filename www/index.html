@@ -1,18 +1,27 @@
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script src="static/ReittiopasApi.js"></script>
+		<script src="static/DummyApi.js"></script>
+		<link type="text/css" rel="stylesheet" href="static/style/screen.css"/>
 	</head>
 	<body>
 		<div id="results"></div>
+		<a id="logToggle" href="#">Toggle log</a>
+		<div id="log"></div>
 		<script type="text/javascript">
 			function error() {
-				console.error(arguments)
-				$(document.body).append("Error: "+Array.prototype.slice.call(arguments).join(" "))
+				console.log(arguments)
+				$("#log").append("Error: "+Array.prototype.slice.call(arguments).join(" ")+"<br/>")
 			}
 			function message() {
 				console.log(arguments)
-				$(document.body).append("<div>Message: "+Array.prototype.slice.call(arguments).join(" ")+"</div>")
+				$("#log").append("Message: "+Array.prototype.slice.call(arguments).join(" ")+"<br/>")
 			}
+			$("#log").hide()
+			$("#logToggle").click(function() { $("#log").toggle() })
+			
 			function keys(hash) {
 				var found = []
 				for( var k in hash ) found.push(k);
@@ -22,180 +31,110 @@
 				return name.replace(/(\w)?\(/, function($0,$1){return $1?$1+" (":$0})
 			}
 			
-			var ReittiopasApi = function(apiUrl,apiUser,apiPass) {
-				this.apiUrl = apiUrl
-				this.apiUser = apiUser
-				this.apiPass = apiPass
+			var radius = 200
+//			var api = new DummyApi("api.asp","mioslabs","kaakaa")
+			var api = new ReittiopasApi("api.asp")
+			var elements = {}
+
+
+			var gl = navigator.geolocation
+			if(!gl) {
+				error("Geolocation service unavailable")
+			} else {
+				getPosition()
 			}
-			ReittiopasApi.prototype.findStops = function(position,success,error) {
-				$.ajax({ 
-					url: this.apiUrl,
-					data: {
-						"closest_stops": "1",
-						"lat": position.coords.latitude,
-						"lon": position.coords.longitude, 
-						"radius": radius,
-						"user": this.apiUser, "pass": this.apiPass
-					}, 
-					success: function(data) {
-						success($(data)
-							.find("[code]")
-							.map(function(i,e){ 
-								return {
-									code: e.getAttribute("code"),
-									lat: Number(e.getAttribute("lat")),
-									lng: Number(e.getAttribute("lon")),
-									distance: Number(e.getAttribute("dist"))
-								}
-							})
-						)
-					},
-					error: function(request,status) {
-						error("Unable to retrieve stops");
-						console.error("Details", status, request.responseText)
-					}
-				});
+
+			var positionRetries = 0
+			function getPosition() {
+				message("Requesting position");
+				gl.getCurrentPosition(
+					positionUpdated,
+					function(err) {
+						if(++positionRetries>2) {
+							error("Unable to get position",err)
+							return
+						}
+						message("Retrying position request")
+						getPosition()
+					}, { timeout: 2000 }
+				)
 			}
-			ReittiopasApi.prototype.getSchedule = function(code,success,error) {
-				$.ajax({
-					url: this.apiUrl, 
-					data: { "stop": stop.code, user: this.apiUser, pass: this.apiPass }, 
-					success: function(data) {
-						var lines = data.split("\n")
-						var header = lines[0].split("|")
-						stop.name = header[1]
-						stop.address = header[2]
-						stop.city = header[3]
-						stop.schedule = lines
-							.slice(1,lines.length-1)
-							.map(this.parseScheduleLine)
-						success(stop)
-					},
-					error: function(request,status) {
-						error("Unable to retrieve schedule for stop "+code);
-						console.error("Details", status, request.responseText)
-					}
+			
+			function positionUpdated(position) {
+				$("#results").empty();
+				message("At ",position.coords.latitude,"(lat)",position.coords.longitude+"(lng)")
+				message("Requesting stops");
+				api.findStops(position,receivedStops)
+			}
+
+			function receivedStops(stops) {
+				if(stops.length==0) {
+					message("No stops found within a",radius,"meter radius")
+					return
+				}
+				message("Requesting schedule(s) for",stops.length,"stop(s)")
+				stops.map(function(stop){ 
+					api.getSchedule(stop,displayStop)
 				})
 			}
-			ReittiopasApi.prototype.parseScheduleLine = function(line) {
-				line = line.split("|")					
-				return {
-					time: this.parseTime(line[0]),
-					line: line[1],
-					destination: fixName(line[2]),
-					code: line[3]
+
+			function displayStop(stop) {
+				var element = elements[stop.code]
+				if(!element) {
+					element = createDisplayTemplate()
+					elements[stop.code] = element
+					$("#results").append(element)
 				}
+				message("Update for stop",stop.code," with ",stop.schedule.length,"entries")
+				console.log(stop);
+				if(stop.schedule.length==0) {
+					element.remove()
+					delete elements[stop.code]
+					return
+				}
+				stop.schedule.map(function(entry){
+					element.addClass(typeFromLine(entry.line));
+				})
+				element.find("h3 .name")
+					.text(stop.name||"Unknown")
+				element.find("h3 .address")
+					.text((stop.address||"?")+" in "+(stop.city||"?"))
+				element.find("h3 .dir")
+					.text((stop.distance||"?")+"m")
+				displayDestinations(stop,element)
+				displayImminent(stop,element)
+				displaySchedule(stop,element)
 			}
-			ReittiopasApi.prototype.parseTime = function(time) {
-				var ms = new Date().getTime()
-				ms = ms-(ms%86400000);
-				if(time.length==3) {
-					ms += parseInt(time.substring(0,1))*60*60*1000 +
-								parseInt(time.substring(1,3))*60*1000
-				} else {
-					ms += parseInt(time.substring(0,2))*60*60*1000 +
-								parseInt(time.substring(2,4))*60*1000
-				}
-				return new Date(ms)
+			function displayDestinations(stop,element) {
+				var destinations = {}
+				stop.schedule.map(function(entry){
+					var d = destinations[entry.destination]||{}
+					d[entry.line] = true
+					destinations[entry.destination] = d
+				})
+				var list = element.find(".lines span").empty()
+				var destinationSpacer = "";
+				$.each(destinations,function(destination,lines){
+					list.append(destinationSpacer)
+					destinationSpacer = ", "
+					var lineSpacer = "";
+					var e = $("<strong>")
+					e.append(destination+" (")
+					$.each(lines,function(line){
+						e.append(lineSpacer)
+						lineSpacer = ", "
+						e.append($("<span>").text(line))
+					})
+					e.append(")")
+					list.append(e)
+				})
 			}
-
-			(function() {
-				var radius = 200
-				var api = new ReittiopasApi("api.asp","mioslabs","kaakaa")
-				var elements = {}
-
-				initialize();
-
-				function initialize() {
-					var gl = navigator.geolocation
-					if(!gl) {
-						error("Geolocation service unavailable")
-						return
-					}
-					message("Requesting position");
-					gl.getCurrentPosition(
-						positionUpdated,
-						function(error) {
-							error("Unable to get position",error)
-						}, { timeout: 2000 }
-					)
-				}
-
-				function positionUpdated(position) {
-					$("#results").empty();
-					message("At ",position.coords.latitude,"(lat)",position.coords.longitude+"(lng)")
-					message("Requesting stops");
-					requestStops(position,receivedStops)
-				}
-
-				function requestStops(position,success) {
-					api.findStops(position,success)
-				}
-
-				function receivedStops(stops) {
-					if(stops.length==0) {
-						message("No stops found within a",radius,"meter radius")
-						return
-					}
-					message("Requesting schedule(s) for",stops.length,"stop(s)")
-					stops.map(function(i,stop){ 
-						requestStop(stop,displayStop)
-					})
-				}
-
-				function requestStop(stop,success) {
-					api.getSchedule(stop,successs)
-				}
-
-				function displayStop(stop) {
-					var element = elements[stop.code]
-					if(!element) {
-						element = createDisplayTemplate()
-						elements[stop.code] = element
-						$("#results").append(element)
-					}
-					message("Update for stop",stop.code," with ",stop.schedule.length,"entries")
-					if(stop.schedule.length==0) {
-						element.remove()
-						delete elements[stop.code]
-						return
-					}
-					element.find("h3 span")
-						.text(stop.name||"Unknown")
-					element.find("h3 small")
-						.text("("+
-							(stop.address||"?")+" in "+
-							(stop.city||"?")+", "+
-							(stop.distance||"?")+"m)")
-					displayDestinations(stop,element)
-					displaySchedule(stop,element)
-				}
-				function displayDestinations(stop,element) {
-					var destinations = {}
-					stop.schedule.map(function(entry){
-						var d = destinations[entry.destination]||{}
-						d[entry.line] = true
-						destinations[entry.destination] = d
-					})
-					var list = element.find("p.destinations>span").empty()
-					var destinationSpacer = "";
-					$.each(destinations,function(destination,lines){
-						list.append(destinationSpacer)
-						destinationSpacer = ", "
-						var lineSpacer = "";
-						var e = $("<strong>")
-						e.append(destination+" ")
-						$.each(lines,function(line){
-							e.append(lineSpacer)
-							lineSpacer = ", "
-							e.append($("<span>").text(line))
-						})
-						list.append(e)
-					})
-				}
-				function displaySchedule(stop,element) {
-					var list = element.find("ul.schedule").empty()
-					stop.schedule.map(function(entry) {
+			function displaySchedule(stop,element) {
+				var list = element.find(".schedule ul").empty()
+				stop.schedule
+					.filter(function(e){return e.time.getTime()>new Date().getTime()})
+					.slice(0,10)
+					.map(function(entry) {
 						list.append($("<li>").append(
 							$("<strong>").text(entry.time.toTimeString().substring(0,5)),
 							" "+typeFromLine(entry.line)+" ",
@@ -203,41 +142,57 @@
 							" to ",
 							$("<strong>").text(entry.destination)
 						))
-					})
-				}
-				function displayImminent(stop,element) {
-					var list = element.find("ul.imminent").empty()
-					stop.schedule.slice(0,2).each(function(i,entry){
-						list.append($("<li>").append(
-							$("<span>").text(entry.line),
-							$("<strong>").text(entry.time),
-							$("<em>").text(entry.time)
+				})
+			}
+			function displayImminent(stop,element) {
+				var list = element.find("ul.imminent").empty()
+				stop.schedule
+					.filter(function(e){return e.time>new Date()})
+					.slice(0,2)
+					.map(function(entry){
+						var delta = timeDiff(entry.time)
+						delta = delta.getHours()*60+delta.getMinutes()
+						list.append($(
+							"<li><div>"+
+								"<span class=\"time "+(delta>99?"long":"")+"\"><strong>"+delta+" min</strong></span> "+
+								"<span class=\"departure\">No. "+entry.line+" at <em>"+entry.time.toTimeString().substring(0,5)+"</em></span>"+
+								"<span class=\"line\">to "+entry.destination+"</span> "+
+							"</div></li>"
 						))
 					})
+			}
+			function createDisplayTemplate() {
+				var template = $(
+						"<div class=\"stop\">"+
+							"<h3><span class=\"name\">Unknown</span> <small>"+
+								"<span class=\"address\"></span> "+
+								"<span class=\"dir\"></span>"+
+							"</small></h3>"+
+							"<p class=\"lines\">Lines: <span>?</span></p>"+
+							"<ul class=\"imminent\"></ul>"+
+							"<div class=\"schedule\"><ul></ul></div>"+
+						"</div>")
+					template.find(".schedule ul").hide() // .click(function(){$(this).slideUp("fast")});
+					template.find(".imminent").click(function(){$(this).parent().find(".schedule ul").slideToggle("fast")});
+					return template;
+			}
+			function typeFromLine(line) {
+				if(line=="metro") {
+					return "metro"
+				} else if(line=="lautta") {
+					return "ferry"
+				} else if(line.match(/^[a-zA-Z]$/)) {
+					return "train"
+				} else if(line.match(/^\d$/)) {
+					return "tram"
+				} else {
+					return "bus"
 				}
-				function createDisplayTemplate() {
-					return $(
-							"<div>"+
-								"<h3><span>Unknown</span> <small></small></h3>"+
-								"<p class=\"destinations\">Destination(s) <span>?</span></p>"+
-								"<ul class=\"imminent\"></ul>"+
-								"<ul class=\"schedule\"></ul>"+
-							"</div>")
-				}
-				function typeFromLine(line) {
-					if(line=="metro") {
-						return "metro"
-					} else if(line=="lautta") {
-						return "ferry"
-					} else if(line.match(/^[a-zA-Z]$/)) {
-						return "train"
-					} else if(line.match(/^\d$/)) {
-						return "tram"
-					} else {
-						return "bus"
-					}
-				}
-			})();
+			}
+			function timeDiff(a,b) {
+				var delta = a.getTime()-(b||new Date()).getTime()
+				return new Date(0,0,0,delta/1000/60/60,(delta/1000/60)%60,(delta/1000)%60)
+			}
 		</script>
 	</body>
 	<script type="text/javascript">
