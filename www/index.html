@@ -27,10 +27,6 @@
 				})
 		
 			new Log(queryString["v"])
-
-			function fixName(name) {
-				return name.replace(/(\w)?\(/, function($0,$1){return $1?$1+" (":$0})
-			}
 			
 			var radius = 200
 			if(queryString["d"]) {
@@ -40,33 +36,36 @@
 			}
 
 			var elements = {}
-			var gl = navigator.geolocation
-			if(!gl) {
-				Log.error("Geolocation service unavailable")
-			} else {
-				Log.message("Requesting position");
-				getPosition({ coords: { latitude: "21.6", longitude: "63.4" } })
-			}
 
-			var positionRetries = 0
-			function getPosition(fallbackPosition) {
-				gl.getCurrentPosition(
-					positionUpdated,
-					function(err) {
-						if(err.code==err.TIMEOUT && ++positionRetries<3) {
-							Log.verbose("Retrying position request")
-							getPosition(fallbackPosition)
-							return
-						}
-						if(fallbackPosition) {
-							Log.message("Using fallback position")
-							positionUpdated(fallbackPosition)
-							return
-						}
+			var fallbackPosition = { 
+				coords: { latitude: "21.6", longitude: "63.4" } 
+			}
+			getPosition(positionUpdated,fallbackPosition)
+
+			function getPosition(success,fallbackPosition) {
+				var positionRetries = 0
+				var gl = navigator.geolocation
+				if(!gl) {
+					Log.warn("Geolocation service unavailable, using fallback")
+					success(fallbackPosition)
+					return
+				}
+				Log.message("Requesting position");
+				request();
+				function request() {
+					gl.getCurrentPosition( success, error, { timeout: 1000 });
+				}
+				function error(e) {
+					if(e.code==e.TIMEOUT && ++positionRetries<3) {
+						Log.verbose("Retrying position request")
+						request()
+					} else if(fallbackPosition) {
+						Log.message("Using fallback position")
+						success(fallbackPosition)
+					} else {
 						Log.error("Unable to get position")
-						return
-					}, { timeout: 2000 }
-				)
+					}
+				}
 			}
 			
 			function positionUpdated(position) {

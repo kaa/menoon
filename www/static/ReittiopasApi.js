@@ -51,12 +51,11 @@ ReittiopasApi.prototype.getSchedule = function(stop,success,error) {
 	})
 }
 ReittiopasApi.parseScheduleLine = function(line) {
-	line = line.split("|")					
+	line = line.split("|")
 	return {
 		time: ReittiopasApi.parseTime(line[0]),
-		line: line[1],
-		destination: fixName(line[2]),
-		code: line[3]
+		line: line[1], code: line[3],
+		destination: line[2].replace(/(\w)?\(/, function($0,$1){return $1?$1+" (":$0})
 	}
 }
 ReittiopasApi.parseTime = function(time) {
