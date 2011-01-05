@@ -1,7 +1,7 @@
 function ReittiopasApi(apiUrl,apiUser,apiPass) {
 	this.apiUrl = apiUrl
 }
-ReittiopasApi.prototype.findStops = function(position,success,error) {
+ReittiopasApi.prototype.findStops = function(position,radius,success,error) {
 	$.ajax({ 
 		url: this.apiUrl,
 		data: {

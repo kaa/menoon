@@ -28,21 +28,15 @@
 				})
 		
 			new Log(queryString["v"])
-			
-			var radius = 200
 			if(queryString["d"]) {
 				var api = new DummyApi()
 			} else {
 				var api = new ReittiopasApi("api.asp")
 			}
-
-			var elements = {}
-
 			var fallbackPosition = { 
 				coords: { latitude: "21.6", longitude: "63.4" } 
 			}
 			new Schedules(api).show(fallbackPosition)
-			
 		</script>
 	</body>
 	<script type="text/javascript">
