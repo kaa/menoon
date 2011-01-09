@@ -16,7 +16,7 @@
 	}
 	var that = this
 	this.elements.selectFromMapButton.click(function(e){
-		that.elements.map.css("height",300)
+		that.selectLocationClicked()
 		e.preventDefault()
 	})
 	if(!navigator.geolocation) {
@@ -36,6 +36,31 @@ $.extend(Locator.prototype,{
 		positionRetries: 6,
 		positionTimeout: 500
 	},
+	selectLocationClicked: function() {
+		this.elements.map.css("height",300)
+		if(!this.map) {
+			this.map = new google.maps.Map(this.elements.map.get(0),{
+				zoom: 15,
+				center: new google.maps.LatLng(60.1630215,24.9283883),
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			})
+			var that = this;
+			var timeout;
+			google.maps.event.addListener(this.map,"center_changed",function(){
+				if(timeout) clearTimeout(timeout)
+				timeout = setTimeout(function() {
+					var position = that.map.getCenter()
+					if(!that.circle) {
+						that.circle = new google.maps.Circle({ map: that.map, strokeWeight: 1, strokeOpacity: 0.5 })
+					}
+					that.circle.setCenter(position)
+					that.circle.setRadius(200)
+					that.located({latitude:position.lat(),longitude:position.lng()})
+				},1000)
+			})
+		}
+	},
+
 	locate: function(retries) {
 		if(retries<0) {
 			Log.warn("Timeout while locating")

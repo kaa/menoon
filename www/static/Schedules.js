@@ -11,6 +11,8 @@ $.extend( Schedules.prototype, {
 	positionUpdated: function(position) {
 		Log.message("At ",position.latitude,"(lat)",position.longitude+"(lng)")
 		Log.verbose("Requesting stops");
+		this.element.empty()
+		this.displays = {}
 		var that = this
 		this.api.findStops(
 			position, this.options.searchRadius,
