@@ -1,6 +1,8 @@
+<!DOCTYPE html>
 <html>
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true">
 		<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script> -->
 		<script src="static/jquery-1.3.2.min.js"></script>
 		<script src="static/ReittiopasApi.js"></script>
@@ -8,6 +10,7 @@
 		<script src="static/Log.js"></script>
 		<script src="static/Schedules.js"></script>
 		<script src="static/Display.js"></script>
+		<script src="static/Locator.js"></script>
 		<script src="static/jquery.jgrowl.js"></script>
 		<link type="text/css" rel="stylesheet" href="static/style/screen.css"/>
 		<style>
@@ -25,19 +28,19 @@
 				.split("&")
 				.map(function(p){ 
 					var pair =  p.split("=")
-					queryString[pair[0]] = pair[1]
-				})
-		
+					queryString[pair[0]] = pair[1] })
+
 			new Log(queryString["v"])
-			if(queryString["d"]) {
-				var api = new DummyApi()
-			} else {
-				var api = new ReittiopasApi("api.asp")
-			}
-			var fallbackPosition = { 
-				coords: { latitude: "21.6", longitude: "63.4" } 
-			}
-			new Schedules(api).show(fallbackPosition)
+			var fallbackPosition = { coords: { latitude: "60.1714", longitude: "24.9414" } }
+			var api = (queryString["d"]||"").indexOf("a")>0?
+				new DummyApi():new ReittiopasApi("api.asp")
+
+			var schedules = new Schedules(api)
+			var locator = new Locator()
+			locator.addEventListener("location",function(p){
+				schedules.positionUpdated(p.details)
+			})
+			$(document.body).append(locator.element,schedules.element)
 		</script>
 	</body>
 	<script type="text/javascript">

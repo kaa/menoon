@@ -10,14 +10,19 @@
 			"<div class=\"schedule\"><ul></ul></div>"+
 		"</div>"
 	)
+	var that = this;
 	this.element.find(".schedule ul").hide()
-	this.element.find(".imminent").click(function(){template.find(".schedule ul").slideToggle("fast")});
+	this.element
+		.find(".imminent")
+		.click(function(){
+			that.element.find(".schedule ul").slideToggle("fast")
+		});
 }
 $.extend(Display.prototype,{
 	show: function(stop) {
 		// Hide stop if no scheudled departures
 		if(stop.schedule.length==0) {
-			display.element.hide()
+			this.element.hide()
 			return
 		}
 		// Add class for each transport type
@@ -31,7 +36,7 @@ $.extend(Display.prototype,{
 		this.element.removeClass()
 		this.element.addClass("stop")
 		stop.schedule.map(function(entry){ 
-			that.element.addClass(that.typeFromLine(entry.line)) 
+			that.element.addClass(Display.typeFromLine(entry.line)) 
 		})
 		this.element.find("h3 .name")
 			.text(stop.name||"Unknown")
@@ -73,7 +78,7 @@ $.extend(Display.prototype,{
 			.map(function(entry) {
 				list.append($("<li>").append(
 					$("<strong>").text(entry.time.toTimeString().substring(0,5)),
-					" "+that.typeFromLine(entry.line)+" ",
+					" "+Display.typeFromLine(entry.line)+" ",
 					$("<strong>").text(entry.line),
 					" to ",
 					$("<strong>").text(entry.destination)
@@ -98,21 +103,21 @@ $.extend(Display.prototype,{
 				))
 			})
 	},
-	typeFromLine: function(line) {
-		if(line=="metro") {
-			return "metro"
-		} else if(line=="lautta") {
-			return "ferry"
-		} else if(line.match(/^[a-zA-Z]$/)) {
-			return "train"
-		} else if(line.match(/^\d$/)) {
-			return "tram"
-		} else {
-			return "bus"
-		}
-	},
 	timeDiff: function(a,b) {
 		var delta = a.getTime()-(b||new Date()).getTime()
 		return new Date(0,0,0,delta/1000/60/60,(delta/1000/60)%60,(delta/1000)%60)
 	}
 })
+Display.typeFromLine = function(line) {
+	if(line=="metro") {
+		return "metro"
+	} else if(line=="lautta") {
+		return "ferry"
+	} else if(line.match(/^[a-zA-Z]$/)) {
+		return "train"
+	} else if(line.match(/^(\d[A-Z]?|10)$/)) {
+		return "tram"
+	} else {
+		return "bus"
+	}
+}

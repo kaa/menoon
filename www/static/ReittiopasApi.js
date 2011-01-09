@@ -2,12 +2,13 @@ function ReittiopasApi(apiUrl,apiUser,apiPass) {
 	this.apiUrl = apiUrl
 }
 ReittiopasApi.prototype.findStops = function(position,radius,success,error) {
+	console.log(position)
 	$.ajax({ 
 		url: this.apiUrl,
 		data: {
 			"closest_stops": "1",
-			"lat": position.coords.latitude,
-			"lon": position.coords.longitude, 
+			"lat": position.latitude,
+			"lon": position.longitude, 
 			"radius": radius
 		}, 
 		success: function(data) {
