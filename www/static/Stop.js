@@ -11,11 +11,10 @@
 		"</div>"
 	)
 	var that = this;
-	this.element.find(".schedule ul").hide()
 	this.element
 		.find(".imminent")
 		.click(function(){
-			that.element.find(".schedule ul").toggleClass("open")
+			that.element.find(".schedule").toggleClass("open")
 		});
 }
 $.extend(Stop.prototype,{

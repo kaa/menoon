@@ -6,7 +6,8 @@
 }
 $.extend( Schedules.prototype, {
 	defaults: {
-		searchRadius: 200
+		searchRadius: 200,
+		displayClass: Stop
 	},
 	positionUpdated: function(position) {
 		Log.message("At ",position.latitude,"(lat)",position.longitude+"(lng)")
@@ -38,7 +39,7 @@ $.extend( Schedules.prototype, {
 		Log.verbose("Update for stop",stop.code," with ",stop.schedule.length,"entries")
 		var display = this.displays[stop.code]
 		if(!display) {
-			display = new Display()
+			display = new this.options.displayClass()
 			this.displays[stop.code] = display
 			this.element.append(display.element)
 		}

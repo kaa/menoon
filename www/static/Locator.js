@@ -37,8 +37,11 @@ $.extend(Locator.prototype,{
 		positionTimeout: 500
 	},
 	selectLocationClicked: function() {
+		this.located({latitude: 60.1630215, longitude: 24.9283883 })
+		return
+		
 		this.elements.map.css("height",300)
-		if(!this.map) {
+		if(!this.map && google) {
 			this.map = new google.maps.Map(this.elements.map.get(0),{
 				zoom: 15,
 				center: new google.maps.LatLng(60.1630215,24.9283883),
@@ -64,7 +67,7 @@ $.extend(Locator.prototype,{
 	locate: function(retries) {
 		if(retries<0) {
 			Log.warn("Timeout while locating")
-			this.elements.display.text("Location not found")
+			this.elements.display.text("Position not found")
 			return;
 		}
 		Log.message("Locating ("+retries+") retries left)");
@@ -73,11 +76,18 @@ $.extend(Locator.prototype,{
 		navigator.geolocation.getCurrentPosition( 
 			function(p) { that.located(p.coords) },
 			function(e) { 
-				if(e.code==e.TIMEOUT) {
-					that.locate(retries-1)
-				} else {
-					console.log(that.elements)
-					that.elements.display.text("Location unavailable")
+				switch(e.code) {
+					case e.TIMEOUT:
+						that.locate(retries-1)
+						break;
+					case e.POSITION_UNAVAILABLE:
+						Log.error("Position unavailable")
+						that.elements.display.text("Position unavailable")
+						break;
+					case e.PERMISSION_DENIED:
+						Log.error("Positioning not allowed")
+						that.elements.display.text("Positioning not allowed")
+						break;
 				}
 			}, 
 			{ timeout:that.options.positionTimeout }
@@ -87,6 +97,15 @@ $.extend(Locator.prototype,{
 		Log.verbose("Located at "+p.latitude+","+p.longitude)
 		this.elements.display.text("At "+p.latitude+","+p.longitude)
 		this.dispatchEvent({type:"location",details:p})
+		if(google&&google.maps) {
+			var that = this
+			var coder = new google.maps.Geocoder()
+			coder.geocode({
+				location: new google.maps.LatLng(p.latitude,p.longitude)
+			},function(result){
+				console.log(result)
+			})
+		}
 	},
 
 	addEventListener: function( type, listener, useCapture) {

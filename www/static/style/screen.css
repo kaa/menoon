@@ -22,16 +22,17 @@ html { font-family: sans-serif; }
 .stop .imminent li div { padding-left: 100px; position: relative }
 	.stop .imminent li .time { 
 		font-size: 1.6em; line-height: 1.2em; text-align: right;
-		position: absolute; bottom: 0; left: 0; width: 90px; }
+		position: absolute; bottom: 0; left: 0; width: 90px; text-align: center }
 	.stop .imminent li .time.long { font-size: 1.4em; line-height: 1.2em; }
 		.stop .imminent li .time strong { font-weight: normal }
 	.stop .imminent li .departure { font-size: 0.75em; display: block; }
 	.stop .imminent li .line { font-size: 0.75em; display: block; }
 
 .stop .schedule {
-  -webkit-transition: all 0.3s ease-out;
-     -moz-transition: all 0.3s ease-out;
-       -o-transition: all 0.3s ease-out;
-          transition: all 0.3s ease-out;
-}
-.stop .schedule a { display: block; text-align: center; font-size: 0.8em }
+  -webkit-transition: all 0.5s ease-out;
+     -moz-transition: all 0.5s ease-out;
+       -o-transition: all 0.5s ease-out;
+          transition: all 0.5s ease-out;
+          height: 0; overflow: hidden; }
+	.stop .schedule.open { height: auto }
+	.stop .schedule a { display: block; text-align: center; font-size: 0.8em }
