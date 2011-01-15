@@ -1,34 +1,26 @@
-html { font-family: sans-serif; }
-.stop { margin-bottom: 20px; border: 4px solid gray; border-radius: 5px; background: white url() 12px 15px no-repeat; padding: 5px; }
+.stop { background: transparent url() 6px 12px no-repeat; padding: 0 }
+	.stop h3, .stop .lines { padding-left: 50px; }
 	.stop.tram  { border-color: #06db00; background-image: url(images/icon-tram.png) }
-		.stop.tram  .imminent { background-color: #daffd3 }
-	.stop.bus   { border-color: #3100aa; background-image: url(images/icon-bus.png) }
-		.stop.bus   .imminent { background-color: #dad9e8 }
+		.stop.tram .imminent { background-color: #daffd3 }
+	.stop.bus  { border-color: #3100aa; background-image: url(images/icon-bus.png) }
+		.stop.bus .imminent { background-color: #dad9e8 }
 	.stop.metro { border-color: #ed6000; background-image: url(images/icon-metro.png) }
 		.stop.metro .imminent { background-color: #ffc59e }
 	.stop.ferry { border-color: #0eb4c1; background-image: url(images/icon-ferry.png) }
 		.stop.ferry .imminent { background-color: #cff1f4 }
 	.stop.train { border-color: #dd0a0a; background-image: url(images/icon-train.png) }
 		.stop.train .imminent { background-color: #ffc8c8 }
-
-.stop h3 { position: relative; font-weight: normal; margin: 0 0 0 52px; }
-	.stop h3 .address { display: block; font-size: 0.8em; font-style: italic }
-	.stop h3 .dir {
-		display: block; width: 50px; text-align: right;
-		position: absolute; bottom: 5px; right: 5px; }
-.stop .lines { margin: 0; font-size: 0.9em; margin: 3px 0 5px 52px; }
-.stop .imminent { overflow: hidden; margin: 0; padding: 8px 0 0 0; }
-.stop .imminent li { width: 50%; float: left; min-width: 200px; margin-bottom: 8px; list-style-type: none }
-.stop .imminent li div { padding-left: 100px; position: relative }
-	.stop .imminent li .time { 
-		font-size: 1.6em; line-height: 1.2em; text-align: right;
-		position: absolute; bottom: 0; left: 0; width: 90px; text-align: center }
-	.stop .imminent li .time.long { font-size: 1.4em; line-height: 1.2em; }
-		.stop .imminent li .time strong { font-weight: normal }
-	.stop .imminent li .departure { font-size: 0.75em; display: block; }
-	.stop .imminent li .line { font-size: 0.75em; display: block; }
+		
+.stop .imminent { padding: 8px 5px 0 5px; position: relative; overflow: hidden; font-weight: normal }
+.stop .imminent > div { float: left; width: 50%; min-width: 200px; margin-bottom: 8px; }
+.stop .imminent .time { float: left; width: 90px; font-size: 26px; text-align: center }
+	.stop .imminent .time.long { font-size: 20px; line-height: 26px; }
+	.stop .imminent .time strong { font-weight: normal }
+.stop .imminent .departure { display: block; font-size: 0.85em }
+.stop .imminent .line { display: block; font-size: 0.85em }
 
 .stop .schedule {
+	display: none;
   -webkit-transition: all 0.5s ease-out;
      -moz-transition: all 0.5s ease-out;
        -o-transition: all 0.5s ease-out;
@@ -36,3 +28,11 @@ html { font-family: sans-serif; }
           height: 0; overflow: hidden; }
 	.stop .schedule.open { height: auto }
 	.stop .schedule a { display: block; text-align: center; font-size: 0.8em }
+
+
+#map .ui-content { padding: 0; margin: 0;}
+#map .map { width: 100%; height: 100%; background: pink; }
+
+
+#jGrowl { position: absolute; position: fixed; top: 0; text-align: right; right: 0; font-size: 10px; }
+	#jGrowl div { background: white; opacity: 0.8 }
