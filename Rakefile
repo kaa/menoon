@@ -4,8 +4,7 @@ verbose(false)
 
 # Environment
 prefix = File.dirname(__FILE__)
-date   = Date.parse(`git log -1`[/^Date:\s+(.+)$/, 1])
-commit = `git log -1`[/^commit\s+(.+)$/, 1][0...8]
+commit = ENV['BUILD_VCS_NUMBER'] || `git log -1`[/^commit\s+(.+)$/, 1][0...8]
 
 # Build tools
 minifier = "java -jar #{prefix}/bin/compiler.jar"
@@ -40,7 +39,7 @@ release_api       = File.join( release, 'api' )
 
 # Tasks
 task :default => [release] do 
-	puts "Finished (#{date} #{commit}) ..."
+	puts "Finished #{commit} ..."
 end
 task :clean do
 	rm_rf release
