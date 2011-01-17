@@ -5,21 +5,23 @@
 		<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
 		<script src="lib/jquery-1.4.4.min.js"></script>
 		<script src="lib/jquery.mobile-1.0a2.min.js"></script>
-		<script src="src/jquery.jgrowl.js"></script>
-		<script src="src/jquery.fixheight.js"></script>
-		<script src="src/QueryString.js"></script>
-		<script src="src/EventTarget.js"></script>
-		<script src="src/ReittiopasApi.js"></script>
-		<script src="src/DummyApi.js"></script>
-		<script src="src/Location.js"></script>
-		<script src="src/LocationEvent.js"></script>
-		<script src="src/Log.js"></script>
-		<script src="src/Stop.js"></script>
-		<script src="src/Map.js"></script>
-		<script src="src/Schedules.js"></script>
-		<script src="src/Locator.js"></script>
-		<link type="text/css" rel="stylesheet" href="lib/jquery.mobile-1.0a2.min.css"/>
-		<link type="text/css" rel="stylesheet" href="static/style/screen.css"/>
+		<link href="lib/jquery.mobile-1.0a2.min.css" rel="stylesheet"/>
+
+		<script src="script/jquery.jgrowl.js"></script>
+		<script src="script/jquery.fixheight.js"></script>
+		<script src="script/QueryString.js"></script>
+		<script src="script/EventTarget.js"></script>
+		<script src="script/ReittiopasApi.js"></script>
+		<script src="script/DummyApi.js"></script>
+		<script src="script/Location.js"></script>
+		<script src="script/LocationEvent.js"></script>
+		<script src="script/Log.js"></script>
+		<script src="script/Stop.js"></script>
+		<script src="script/Map.js"></script>
+		<script src="script/Schedules.js"></script>
+		<script src="script/Locator.js"></script>
+		<link href="style/screen.css" rel="stylesheet"/>
+
 	</head>
 	<body>
 		<div data-role="page" id="main"> 
@@ -34,7 +36,7 @@
 		</div>
 		<div data-role="page" id="map"> 
 			<div data-role="header">
-				<h2 class="locationDisplay">?</h2>
+				<h2 class="locationDisplay">Locating...</h2>
 				<a href="#main" data-back="true" data-icon="info">Stops</a>
 			</div>
 			<div data-role="content">
@@ -48,7 +50,7 @@
 		new Log(queryString["v"])
 
 		var api = (queryString["d"]||"").indexOf("a")>-1?
-			new DummyApi():new ReittiopasApi("api.asp")
+			new DummyApi():new ReittiopasApi("api/")
 		
 		var locator = new Locator($(".locationDisplay"))
 		$("#locationRefreshBtn").click(function(){
