@@ -7,7 +7,7 @@ prefix = File.dirname(__FILE__)
 commit = ENV['BUILD_VCS_NUMBER'] || `git log -1`[/^commit\s+(.+)$/, 1][0...8]
 
 # Build tools
-minifier = "java -jar #{prefix}/bin/compiler.jar"
+minifier = "java -jar \"#{prefix}/bin/compiler.jar\""
 
 # Miscellaneous
 far_future_header = 
@@ -25,8 +25,8 @@ far_future_header =
 src      = File.join( prefix, 'src' )
 src_api  = File.join( src, 'api' )
 src_lib  = File.join( src, 'lib' )
-src_css  = File.join( src, "style" )
-src_html = File.join( src,"index.html" )
+src_css  = File.join( src, 'style' )
+src_html = File.join( src, 'index.html' )
 src_js   = FileList[File.join( src,'script','*.js' )]
 
 release           = File.join( prefix, 'release' )
@@ -71,7 +71,7 @@ file release_css => src_css do
 end
 directory release_static
 file release_js => [release_static,src_js].flatten do 
-	sh "#{minifier} --js #{src_js.join(" --js ")} --js_output_file #{release_js}"
+	sh "#{minifier} --js \"#{src_js.join('" --js "')}\" --js_output_file \"#{release_js}\""
 	File.open(File.join(release_static,"web.config"),'w') do |file|
 		file.write far_future_header
 	end
