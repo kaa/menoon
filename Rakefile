@@ -4,7 +4,8 @@ verbose(false)
 
 # Environment
 prefix = File.dirname(__FILE__)
-commit = ENV['BUILD_VCS_NUMBER'] || `git log -1`[/^commit\s+(.+)$/, 1][0...8]
+commit = (ENV['BUILD_VCS_NUMBER'] || `git log -1`[/^commit\s+(.+)$/, 1])[0...8]
+
 
 # Build tools
 minifier = "java -jar \"#{prefix}/bin/compiler.jar\""
@@ -43,6 +44,9 @@ task :default => [release] do
 end
 task :clean do
 	rm_rf release
+end
+task :deploy, :target , :needs => [release] do |t,args|
+	cp_r File.join(release,'.'), args.target
 end
 
 
