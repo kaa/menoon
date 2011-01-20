@@ -50,6 +50,7 @@ $.extend(Stop.prototype,{
 			e.preventDefault()
 			e.stopPropagation()
 			that.element.addClass("hidden")
+			that.parent.refresh()
 		})
 		this.element.bind("tick",function() {
 			that.element.find(".imminent").replaceWith(that.renderImminent(that.stop.schedule))
@@ -57,8 +58,10 @@ $.extend(Stop.prototype,{
 		this.element.find("a").click(function(){
 			if(that.element.hasClass("hidden")) {
 				that.element.removeClass("hidden")
+				that.parent.refresh()
 				return
 			}
+			return
 			var page
 			$(document.body).append(page=$(
 			'<div data-role="page" id="#stop">'+

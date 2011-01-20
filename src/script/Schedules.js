@@ -41,14 +41,19 @@ $.extend( Schedules.prototype, {
 		var display = this.displays[stop.code]
 		if(!display) {
 			display = new this.options.displayClass()
+			display.parent = this
 			this.displays[stop.code] = display
 			this.element.append(display.element)
 		}
 		display.show(stop)
 	},
-	sort: function() {
+	refresh: function() {
 		var sorted = this.element.children("li")
-			.sort(function(e){return $(e).hasClass("hidden")?1:-1})
+			.sort(function(e){
+				e = $(e)
+				if(e.hasClass("hidden")) return 1
+				return -1
+			})
 			.detach()
 		this.element.append(sorted).listview("refresh")
 	}
