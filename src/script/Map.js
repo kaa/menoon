@@ -1,5 +1,6 @@
-var Map =	$.extend({},EventTarget,{
-
+function Map() {}
+Map.available = window.google && window.google.maps
+$.extend(Map,EventTarget,{
 	// Public 
 	initialize: function(options) {
 		this.options = $.extend({
@@ -9,7 +10,6 @@ var Map =	$.extend({},EventTarget,{
 		// TODO: Do this prettier?
 		var self = this
 		this.parent().bind("resize",function(){
-			console.log("resize")
 			google.maps.event.trigger(self.map,"resize")
 			if(self.circle) {
 				self.map.setCenter(self.circle.getCenter())

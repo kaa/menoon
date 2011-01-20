@@ -7,12 +7,17 @@ DummyApi.prototype.findStops = function(position,radius,success) {
 		{ code: "2", distance: 120, lat: "21.3", lng: "63.2" },
 		{ code: "3", distance: 150, lat: "21.3", lng: "63.2" },
 		{ code: "4", distance: 175, lat: "21.3", lng: "63.2" },
-		{ code: "5", distance: 176, lat: "21.3", lng: "63.2" }
+		{ code: "5", distance: 176, lat: "21.3", lng: "63.2" },
+		{ code: "6", distance: 178, lat: "21.3", lng: "63.2" },
+		{ code: "7", distance: 179, lat: "21.3", lng: "63.2" }
 	])
 }
 DummyApi.prototype.getSchedule = function(stop,success) {
 	Log.verbose("Pretending to find schedule for stop "+stop.code)
-	var time = new Date().getTime()
+	var time = new Date()
+	time.setSeconds(0)
+	time.setMilliseconds(0)
+	time = time.getTime()
 	var stops = {
 		"1": {
 			"code": "1",
@@ -66,7 +71,16 @@ DummyApi.prototype.getSchedule = function(stop,success) {
 				{ time: new Date(time+3*60*1000), line: "lautta", destination: "Dummy ville", code: "1006  2" },
 				{ time: new Date(time+15*60*1000), line: "lautta", destination: "Dummy ville", code: "1006  2" }
 			]
+		},
+		"6": {
+			"code": "6",
+			"schedule": []
+		},
+		"7": {
+			"code": "7"
 		}
 	}
-	success($.extend(stop,stops[stop.code]))
+	setTimeout(function(){
+		success($.extend(stop,stops[stop.code]))
+	},1000)
 }

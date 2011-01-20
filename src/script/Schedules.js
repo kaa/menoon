@@ -9,8 +9,7 @@ $.extend( Schedules.prototype, {
 		displayClass: Stop
 	},
 	showStops: function(position,radius) {
-		Log.message("At ",position.latitude,"(lat)",position.longitude+"(lng)")
-		Log.verbose("Requesting stops");
+		Log.message("Requesting stops for",position.latitude,",",position.longitude)
 		this.element.empty()
 		this.displays = {}
 		var that = this
@@ -18,6 +17,7 @@ $.extend( Schedules.prototype, {
 			position, radius,
 			function(stops){
 				that.updateStops(stops)
+				that.element.listview("refresh")
 			}
 		)
 	},
@@ -29,14 +29,15 @@ $.extend( Schedules.prototype, {
 		Log.verbose("Requesting schedule(s) for",stops.length,"stop(s)")
 		var that = this
 		stops.map(function(stop){ 
-			this.api.getSchedule(stop,function(){
+			that.updateStop(stop)
+			that.api.getSchedule(stop,function(){
 				that.updateStop(stop)
 				that.element.listview("refresh")
 			})
 		})
 	},
 	updateStop: function(stop) {
-		Log.verbose("Update for stop",stop.code," with ",stop.schedule.length,"entries")
+		Log.verbose("Update",stop,"for stop",stop.code,"with",(stop.schedule||[]).length,"entries")
 		var display = this.displays[stop.code]
 		if(!display) {
 			display = new this.options.displayClass()

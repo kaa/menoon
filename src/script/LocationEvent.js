@@ -1,11 +1,10 @@
 function LocationEvent(location,status) {
 	this.type = "location"
-	this.status = status||this.SUCCESS
+	this.status = status
 	this.location = location
 }
-$.extend(LocationEvent.prototype,{
-	SUCCESS: 1,
-	TIMEOUT: 2,
-	UNAVAILABLE: 3,
-	PERMISSION_DENIED: 4
-});
+LocationEvent.PENDING = 0
+LocationEvent.SUCCESS = 1
+LocationEvent.TIMEOUT = 2
+LocationEvent.UNAVAILABLE = 3
+LocationEvent.PERMISSION_DENIED = 4

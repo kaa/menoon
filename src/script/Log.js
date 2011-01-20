@@ -1,5 +1,4 @@
 function Log(level) {
-	console.log(level)
 	Log.level = level||1;
 	$.jGrowl.defaults.closer = false
 	$.jGrowl.defaults.closeTemplate = ""

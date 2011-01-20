@@ -1,7 +1,7 @@
-function Locator(display,options) {
+function Locator(options) {
 	this.options = $.extend(options||{},this.defaults)
-	this.display = display
 }
+Locator.available = typeof(navigator.geolocation)!="undefined"
 $.extend(Locator.prototype, EventTarget, {
 	defaults: {
 		positionRetries: 12,
@@ -11,18 +11,18 @@ $.extend(Locator.prototype, EventTarget, {
 		if(typeof(retries)=="undefined") {
 			retries = this.options.positionRetries
 		}
-		if(!navigator.geolocation) {
+		if(!Locator.available) {
 			Log.warn("Geolocation service unavailable")
-			this.display.text("Location not selected")
+			this.dispatchEvent(new LocationEvent(null,LocationEvent.UNAVAILABLE))
 			return
 		}
 		if(retries<0) {
 			Log.warn("Timeout while locating")
-			this.display.text("Position not found")
+			this.dispatchEvent(new LocationEvent(null,LocationEvent.TIMEOUT))
 			return;
 		}
-		Log.message("Locating ("+retries+") retries left)");
-		this.display.text("Locating "+"...".substring(0,3-retries%3));
+		Log.message("Locating ("+retries+" retries left)");
+		this.dispatchEvent(new LocationEvent(null,LocationEvent.PENDING))
 		var self = this
 		navigator.geolocation.getCurrentPosition( 
 			function(p) { self._located(p.coords) },
@@ -31,9 +31,8 @@ $.extend(Locator.prototype, EventTarget, {
 		)
 	},
 	setLocation: function(location,wasGeocoded) {
-		this.dispatchEvent(new LocationEvent(location))
+		this.dispatchEvent(new LocationEvent(location,LocationEvent.SUCCESS))
 		if(wasGeocoded || !(google&&google.maps)) {
-			this.display.text(location.toReadableString())
 			return
 		}
 		var self = this
@@ -54,11 +53,11 @@ $.extend(Locator.prototype, EventTarget, {
 				break;
 			case e.POSITION_UNAVAILABLE:
 				Log.error("Positioning unavailable")
-				this.display.text("Select location")
+				this.dispatchEvent(new LocationEvent(null,LocationEvent.UNAVAILABLE))
 				break;
 			case e.PERMISSION_DENIED:
 				Log.error("Positioning not allowed")
-				this.display.text("Positioning not allowed")
+				this.dispatchEvent(new LocationEvent(null,LocationEvent.PERMISSION_DENIED))
 				break;
 		}
 	},

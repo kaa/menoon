@@ -1,0 +1,7 @@
+
+       
+start --> unavailable ----------.
+      --> pending [--> timeout /
+             ^    [--> located --> loading --> error
+             `--- [                        --> loaded
+ 

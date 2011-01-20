@@ -1,7 +1,13 @@
-function Location(latitude,longitude) {
+function Location(latitude,longitude,stamp) {
 	this.latitude = latitude
 	this.longitude = longitude
+	if(stamp) {
+		this.stamp = stamp
+	} else {
+		this.stamp = Location.counter++
+	}
 }
+Location.counter = 0
 $.extend(Location.prototype,{
 	addGeocodingResult: function(result) {
 		if($.isArray(result)) {

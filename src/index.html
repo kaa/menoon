@@ -20,60 +20,37 @@
 		<script src="script/Map.js"></script>
 		<script src="script/Schedules.js"></script>
 		<script src="script/Locator.js"></script>
-		<link href="style/screen.css" rel="stylesheet"/>
+		<script src="script/Menoon.js"></script>
 
+		<link href="style/screen.css" rel="stylesheet"/>
 	</head>
 	<body>
-		<div data-role="page" id="main"> 
+		<div data-role="page" id="main">
 			<div data-role="header">
-				<a href="#" id="locationRefreshBtn" data-icon="refresh" class="ui-btn-left">Find me</a>
-				<h2 class="locationDisplay">Locating...</h2>
-				<a href="#map" data-icon="grid">Map</a>
-			</div> 
+				<span class="c"></span>
+				<h2><span class="t">Menoon</span></h2>
+				<div data-role="navbar">
+					<ul>
+					<li><a href="#" class="btnFind">Locate</a>
+					<li><a href="#" class="btnMap">Map</a>
+					</ul>
+				</div>
+			</div>
 			<div data-role="content">
 				<ul data-role="listview" id="stops"></ul>
 			</div>
 		</div>
-		<div data-role="page" id="map"> 
+		<div data-role="page" id="map">
 			<div data-role="header">
-				<h2 class="locationDisplay">Locating...</h2>
-				<a href="#main" data-back="true" data-icon="info">Stops</a>
+				<a href="#" data-icon="arrow-l">Return</a>
+				<span class="c"></span>
+				<h2><span class="t">Menoon</span></h2>
 			</div>
 			<div data-role="content">
 				<div class="map"></div>
 			</div>
-		</div> 
+		</div>
 	</body>
-	<script type="text/javascript">
-		// Parse querystring
-		var queryString = new QueryString(window.location.search)
-		new Log(queryString["v"])
-
-		var api = (queryString["d"]||"").indexOf("a")>-1?
-			new DummyApi():new ReittiopasApi("api/")
-		
-		var locator = new Locator($(".locationDisplay"))
-		$("#locationRefreshBtn").click(function(){
-			locator.locate()
-		})
-
-		$("#map").fixHeight()
-		if(google&&google.maps) {
-			var map = $.extend($("#map .map"),Map)
-			map.initialize()
-			map.bind("location",function(e) {
-				locator.setLocation(e.location)
-			})
-			locator.addEventListener("location",function(e) {
-				map.setLocation(e.location)
-			})
-		}
-		var schedules = new Schedules(api,$("#stops"))
-		locator.addEventListener("location",function(e) {
-			schedules.showStops(e.location,200)
-		})		
-		locator.locate()
-	</script>
 
 	<script type="text/javascript">
 		var _gaq = _gaq || [];

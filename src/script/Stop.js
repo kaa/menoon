@@ -1,112 +1,132 @@
 function Stop() {
 	this.element = $(
-		'<li class="stop">'+
-			'<h3><span class="name">Unknown</span> <small>'+
-				'<span class="address"></span> '+
-				'<span class="dir"></span>'+
-			'</small></h3>'+
-			'<p class="lines">Lines: <span><em>None</em></span></p>'+
-			'<div class="imminent"></div>'+
-			'<div class="schedule"></div>'+
-		'</div>'
-	)
-	var that = this;
+		'<li class="stop loading">'+
+		'</li>')
+	var that = this
 	this.element
 		.find(".imminent")
-		.click(function(){
-			that.element.find(".schedule").toggleClass("open")
-		});
+		.bind("click",function(){ that.element.find(".schedule").toggleClass("open") })
+		.bind("tick",function(){ that.display(this.stop) })
 }
 $.extend(Stop.prototype,{
 	show: function(stop) {
-		// Hide stop if no scheudled departures
-		if(stop.schedule.length==0) {
-			this.element.hide()
-			return
+		this.stop = stop
+		this.display(this.stop)
+	},
+	display: function(stop) {
+		if(!stop.schedule) {
+			this.displayLoading(stop)
+		} else if(stop.schedule.length==0) {
+			this.displayNoService(stop)
+		} else {
+			this.displayActive(stop)
 		}
-		// Add class for each transport type
-		this.displayDetails(stop);
-		this.displayDestinations(stop.schedule)
-		this.displayImminent(stop.schedule)
-		this.displaySchedule(stop.schedule)
 	},
-	displayDetails: function(stop) {
+	displayLoading: function(stop) {
+		this.element.attr("class","stop loading")
+		this.element.empty().append('<h3>Loading...</h3>')
+	},
+	displayNoService: function(stop) {
+		this.element.attr("class","stop no-service")
+		this.element.empty().append('<h3>No service</h3>')
+	},
+	displayActive: function(stop) {
+		this.element
+			.attr("class","stop tick")
+			.empty()
+			.append(
+				'<h3><a href="#">'+
+					'<span class="name">'+stop.name+'</span> '+
+					'<small>'+
+						'<span class="address">'+stop.address+
+						' <span class="dir">'+stop.distance+'m</span>'+
+					'</small>'+
+				'</a> <span class="hide">Hide</span></h3>'+
+				this.renderDestinations(stop.schedule)+
+				this.renderImminent(stop.schedule)+
+				this.renderSchedule(stop.schedule))
 		var that = this
-		this.element.removeClass()
-		this.element.addClass("stop")
-		stop.schedule.map(function(entry){ 
-			that.element.addClass(Stop.typeFromLine(entry.line)) 
+		this.element.find(".hide").click(function(e){
+			e.preventDefault()
+			e.stopPropagation()
 		})
-		this.element.find("h3 .name")
-			.text(stop.name||"Unknown")
-		this.element.find("h3 .address")
-			.text((stop.address||"?")+" in "+(stop.city||"?"))
-		this.element.find("h3 .dir")
-			.text((stop.distance||"?")+"m")
+		this.element.bind("tick",function() {
+			that.element.find(".imminent").replaceWith(that.renderImminent(that.stop.schedule))
+		})
+		this.element.find("a").click(function(){
+			var page
+			$(document.body).append(page=$(
+			'<div data-role="page" id="#stop">'+
+				'<div data-role="header">'+
+					'<a href="#" data-icon="arrow-l" data-back="true">Return</a>'+
+					'<h2>Stop</h2>'+
+				'</div>'+
+				'<div data-role="content">'+
+				'</div>'+
+			'</div>').page())
+			page.find("a").click(function(){
+				$.mobile.changePage("#main","slide",true,false)
+			})
+			$.mobile.changePage(page,"slide",false)
+		})
+
+		var that = this
+		stop.schedule.map(function(e){
+			that.element.addClass(Stop.typeFromLine(e.line))
+		})
 	},
-	displayDestinations: function(schedule) {
+	renderDestinations: function(schedule) {
+		var list = []
 		var destinations = {}
 		schedule.map(function(entry){
 			var d = destinations[entry.destination]||{}
 			d[entry.line] = true
 			destinations[entry.destination] = d
 		})
-		var list = this.element.find(".lines span").empty()
-		var destinationSpacer = "";
-		$.each(destinations,function(destination,lines){
-			list.append(destinationSpacer)
-			destinationSpacer = ", "
-			var lineSpacer = "";
-			var e = $("<strong>")
-			e.append(destination+" (")
-			$.each(lines,function(line){
-				e.append(lineSpacer)
-				lineSpacer = ", "
-				e.append($("<span>").text(line))
-			})
-			e.append(")")
-			list.append(e)
+		$.each(destinations, function(destination,lines){
+			var t = []
+			$.each(lines,function(line){t.push("<span>"+line+"</span>") })
+			list.push("<strong>"+destination+" ("+t.join(", ")+")</strong>")
 		})
+		return '<p class="lines">Lines: <span>'+list.join(", ")+'</span></p>'
 	},
-	displaySchedule: function(schedule) {
-		var that = this
-		var list = this.element.find(".schedule ul").empty()
-		schedule
-			.filter(function(e){return e.time.getTime()>new Date().getTime()})
-			.slice(0,10)
-			.map(function(entry) {
-				list.append($("<li>").append(
-					$("<strong>").text(entry.time.toTimeString().substring(0,5)),
-					" "+Stop.typeFromLine(entry.line)+" ",
-					$("<strong>").text(entry.line),
-					" to ",
-					$("<strong>").text(entry.destination)
-				))
-		})
-	},
-	displayImminent: function(schedule) {
-		var that = this
-		var list = this.element.find(".imminent").empty()
-		schedule
+	renderImminent: function(schedule) {
+		var rows = schedule
 			.filter(function(e){return e.time>new Date()})
-			.slice(0,2)
-			.map(function(entry){
-				var delta = that.timeDiff(entry.time)
+			.slice(0,2).map(function(entry){
+				var delta = Stop.timeDiff(entry.time)
 				delta = delta.getHours()*60+delta.getMinutes()
-				list.append($(
+				return (
 					"<div>"+
-						"<span class=\"time "+(delta>99?"long":"")+"\"><strong>"+delta+" min</strong></span> "+
+						"<span class=\"time "+(delta<2?"soon blink":(delta>99?"long":""))+"\"><strong>"+delta+" min</strong></span> "+
 						"<span class=\"departure\">"+Stop.readableLine(entry.line)+" at <strong>"+entry.time.toTimeString().substring(0,5)+"</strong></span>"+
 						"<span class=\"line\">to "+entry.destination+"</span> "+
 					"</div>"
-				))
+				)
 			})
-	},
-	timeDiff: function(a,b) {
-		var delta = a.getTime()-(b||new Date()).getTime()
-		return new Date(0,0,0,delta/1000/60/60,(delta/1000/60)%60,(delta/1000)%60)
+		return '<div class="imminent">'+rows.join("")+'</div>'
+	},	
+	renderSchedule: function(schedule) {
+		var rows = schedule
+			.filter(function(e){return e.time.getTime()>new Date().getTime()})
+			.slice(0,10).map(function(entry) { 
+				return (
+					'<p>'+
+						'<strong>'+
+							entry.time.toTimeString().substring(0,5)+' '+
+							Stop.typeFromLine(entry.line)+
+						'</strong> '+
+						'<strong>'+entry.line+'</strong> to '+
+						'<strong>'+entry.destination+'</strong>'+
+					'</p>')
+			})
+		return '<div class="schedule">'+rows.join(" ")+'</div>'
 	}
 })
+Stop.timeDiff = function(a,b) {
+	var delta = a.getTime()-(b||new Date()).getTime()
+	return new Date(0,0,0,delta/1000/60/60,(delta/1000/60)%60,(delta/1000)%60)
+}
 Stop.readableLine = function(line) {
 	switch(Stop.typeFromLine(line)) {
 		case "metro":
