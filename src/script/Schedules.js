@@ -10,6 +10,7 @@ $.extend( Schedules.prototype, {
 	},
 	showStops: function(position,radius) {
 		Log.message("Requesting stops for",position.latitude,",",position.longitude)
+		$("#main").addClass("loading")
 		this.element.empty()
 		this.displays = {}
 		var that = this
@@ -22,6 +23,7 @@ $.extend( Schedules.prototype, {
 		)
 	},
 	updateStops: function(stops) {
+		$("#main").removeClass("loading")
 		if(stops.length==0) {
 			Log.message("No stops found within a",this.options.searchRadius,"meter radius")
 			return

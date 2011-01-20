@@ -32,7 +32,22 @@
 	});
 
 	if(Locator.available) {
-		pages.main.find(".btnFind").click(function(){ locator.locate() })
+		pages.main.find(".btnFind")
+			.click(function(){ 
+				var that = $(this)
+				if(that.attr("data-theme")=="a") {
+					$(this)
+						.removeClass("ui-btn-up-a")
+						.removeClass("ui-btn-hover-b")
+						.attr("data-theme","b")
+				} else {
+					$(this)
+						.removeClass("ui-btn-up-b")
+						.removeClass("ui-btn-hover-b")
+						.attr("data-theme","a")
+				}
+				locator.locate() 
+			})
 	} else {
 		pages.main.find(".btnFind").hide()
 	}
@@ -41,8 +56,10 @@
 	if(Map.available) {
 		var map = $.extend(pages.map.find(".map"),Map).initialize()
 			.bind("location",function(e) { locator.setLocation(e.location) })
-		pages.main.find(".btnMap")
-			.click(function(){ $.mobile.changePage("#map","slide",false,false) })
+
+		pages.main.find("h2")
+			.click(function(){ $.mobile.changePage("#map","slidedown",false,false) })
+
 		pages.map.find("[data-role=header] a")
 			.click(function(){ console.log("boo"); $.mobile.changePage("#main","slide",true,false) })
 	} else {

@@ -2,15 +2,17 @@ function DummyApi() {
 }
 DummyApi.prototype.findStops = function(position,radius,success) {
 	Log.verbose("Pretending to find stops near "+position.latitude+","+position.longitude+" in "+radius+" m radius")
-	success([
-		{ code: "1", distance: 100, lat: "21.2", lng: "63.4" },
-		{ code: "2", distance: 120, lat: "21.3", lng: "63.2" },
-		{ code: "3", distance: 150, lat: "21.3", lng: "63.2" },
-		{ code: "4", distance: 175, lat: "21.3", lng: "63.2" },
-		{ code: "5", distance: 176, lat: "21.3", lng: "63.2" },
-		{ code: "6", distance: 178, lat: "21.3", lng: "63.2" },
-		{ code: "7", distance: 179, lat: "21.3", lng: "63.2" }
-	])
+	setTimeout(function(){
+		success([
+			{ code: "1", distance: 100, lat: "21.2", lng: "63.4" },
+			{ code: "2", distance: 120, lat: "21.3", lng: "63.2" },
+			{ code: "3", distance: 150, lat: "21.3", lng: "63.2" },
+			{ code: "4", distance: 175, lat: "21.3", lng: "63.2" },
+			{ code: "5", distance: 176, lat: "21.3", lng: "63.2" },
+			{ code: "6", distance: 178, lat: "21.3", lng: "63.2" },
+			{ code: "7", distance: 179, lat: "21.3", lng: "63.2" }
+		])
+	}, 2000 )
 }
 DummyApi.prototype.getSchedule = function(stop,success) {
 	Log.verbose("Pretending to find schedule for stop "+stop.code)
