@@ -1,7 +1,9 @@
 .c { position: absolute; top: 10px; right: 10px; }
 
 #main.loading { background: url(images/bg-loading.png) center center no-repeat; }
+#main.locating { background: url(images/bg-locating.png) center center no-repeat; }
 
+.schedules { background: white }
 .stop { background: transparent url() 8px 10px no-repeat; padding: 0 }
 	.stop.tram  { border-color: #06db00; background-image: url(images/icon-tram.png) }
 		.stop.tram .imminent { background-color: #daffd3 }

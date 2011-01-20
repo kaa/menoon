@@ -8,11 +8,14 @@ $.extend( Schedules.prototype, {
 	defaults: {
 		displayClass: Stop
 	},
+	clearStops: function() {
+		this.element.empty()
+		this.displays = {}
+	},
 	showStops: function(position,radius) {
 		Log.message("Requesting stops for",position.latitude,",",position.longitude)
 		$("#main").addClass("loading")
-		this.element.empty()
-		this.displays = {}
+		this.clearStops()
 		var that = this
 		this.api.findStops(
 			position, radius,

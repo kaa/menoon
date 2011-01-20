@@ -12,9 +12,12 @@
 		var display = $("h2 .t")
 		switch(e.status) {
 			case LocationEvent.PENDING:
+				schedules.clearStops()
+				pages.main.addClass("locating")
 				display.text("Locating"+"...".substring(0,(i++)%4))
 				break;
 			case LocationEvent.SUCCESS:
+				pages.main.removeClass("locating")
 				display.text(e.location.toReadableString())
 				schedules.showStops(e.location,200)
 				if(map) map.setLocation(e.location)
