@@ -11,13 +11,22 @@
 		.stop.ferry .imminent { background-color: #cff1f4 }
 	.stop.train { border-color: #dd0a0a; background-image: url(images/icon-train.png) }
 		.stop.train .imminent { background-color: #ffc8c8 }
-.stop.loading, .stop.no-service { padding:  10px 0; border-color: #ccc;}
-	.stop.loading { background-image: url(images/icon-loading.png) }
+.stop.loading, .stop.no-service { padding: 10px 0; border-color: #ccc;}
+	.stop.loading { border-color: #ccc; background-image: url(images/icon-loading.png) }
 	.stop.no-service { background-image: url(images/icon-sleep.png) }
 
+body .stop.hidden { background: #ddd url() 8px 10px no-repeat; padding: 0; border-color: #ccc }
+	.stop.hidden h3 { display: inline; font-size: 1em; margin: 0; padding: 0 0 0 10px }
+		.stop.hidden h3 small,	.stop.hidden .imminent, .stop.hidden .schedule { display: none }
+	.stop.hidden .lines { padding: 0; display: inline; }
+		.stop.hidden .lines strong { font-weight: normal }
+
 .stop h3 { padding-left: 50px; padding-right: 40px; font-size: 1.2em; font-weight: normal; margin: 8px 0 0 0 }
-	.stop h3 small { font-weight: normal; font-size: 0.7em }
-	.stop h3 .hide { font-weight: normal; font-size: 0.7em }
+	.stop h3 small { font-weight: normal; font-size: 0.7em; min-width: 200px; }
+	.stop h3 .toggle { position: absolute; right: 10px; top: 10px; width: 22px; height: 22px;
+	                   background: url(images/btn-zap.png) no-repeat; }
+		.stop.hidden h3 .toggle { display: none }
+		.stop h3 .toggle span { display: none }
 
 .lines { margin: 0 0 4px 0; padding-left: 50px; }		
 

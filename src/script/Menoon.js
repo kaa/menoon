@@ -55,7 +55,7 @@
 	var api = (queryString["d"]||"").indexOf("a")>-1?
 		new DummyApi():new ReittiopasApi("api/")
 		
-	var schedules = new Schedules(api,$("#stops"))
+	window.schedules = new Schedules(api,$("#stops"))
 	locator.locate()
 
 	var blink = 0
@@ -67,7 +67,6 @@
 		var now = new Date()
 		$(".c").text(now.toTimeString().substring(0,9))
 		if(now.getSeconds()==0) {
-			console.log("tock")
 			$(".tick").trigger("tick")
 		}
 	},1000);

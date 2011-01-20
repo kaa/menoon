@@ -41,19 +41,24 @@ $.extend(Stop.prototype,{
 						'<span class="address">'+stop.address+
 						' <span class="dir">'+stop.distance+'m</span>'+
 					'</small>'+
-				'</a> <span class="hide">Hide</span></h3>'+
+				'</a> <span class="toggle"><span>Hide</span></span></h3>'+
 				this.renderDestinations(stop.schedule)+
 				this.renderImminent(stop.schedule)+
 				this.renderSchedule(stop.schedule))
 		var that = this
-		this.element.find(".hide").click(function(e){
+		this.element.find(".toggle").click(function(e){
 			e.preventDefault()
 			e.stopPropagation()
+			that.element.addClass("hidden")
 		})
 		this.element.bind("tick",function() {
 			that.element.find(".imminent").replaceWith(that.renderImminent(that.stop.schedule))
 		})
 		this.element.find("a").click(function(){
+			if(that.element.hasClass("hidden")) {
+				that.element.removeClass("hidden")
+				return
+			}
 			var page
 			$(document.body).append(page=$(
 			'<div data-role="page" id="#stop">'+

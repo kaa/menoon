@@ -45,5 +45,11 @@ $.extend( Schedules.prototype, {
 			this.element.append(display.element)
 		}
 		display.show(stop)
+	},
+	sort: function() {
+		var sorted = this.element.children("li")
+			.sort(function(e){return $(e).hasClass("hidden")?1:-1})
+			.detach()
+		this.element.append(sorted).listview("refresh")
 	}
 })
