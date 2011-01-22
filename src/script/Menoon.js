@@ -61,10 +61,10 @@
 			.bind("location",function(e) { locator.setLocation(e.location) })
 
 		pages.main.find("h2")
-			.click(function(){ $.mobile.changePage("#map","slidedown",false,false) })
+			.click(function(){ $.mobile.changePage("#map","slide",false,false) })
 
-		pages.map.find("[data-role=header] a")
-			.click(function(){ console.log("boo"); $.mobile.changePage("#main","slide",true,false) })
+		pages.map.find("[data-role=header]")
+			.click(function(){ $.mobile.changePage("#main","slide",true,false) })
 	} else {
 		pages.main.find(".btnMap").hide()
 	}
