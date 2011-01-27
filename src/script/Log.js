@@ -1,25 +1,27 @@
-function Log(level) {
-	Log.level = level||1;
+function Log() {
+}
+Log.initialize = function(level) {
 	$.jGrowl.defaults.closer = false
 	$.jGrowl.defaults.closeTemplate = ""
+	Log.level = level||1;
 }
 Log.error = function() {
-	if(Log.level<1) return
 	console.log(arguments)
+	if(Log.level<1) return
 	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"error"})
 }
 Log.warn = function() {
-	if(Log.level<2) return
 	console.log(arguments)
+	if(Log.level<2) return
 	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"warn"})
 }
 Log.message = function() {
-	if(Log.level<3) return
 	console.log(arguments)
+	if(Log.level<3) return
 	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"message"})
 }
 Log.verbose = function() {
-	if(Log.level<4) return
 	console.log(arguments)
+	if(Log.level<4) return
 	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"verbose"})
 }

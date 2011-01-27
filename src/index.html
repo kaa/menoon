@@ -10,47 +10,34 @@
 		<link href="lib/jquery.mobile-1.0a2.min.css" rel="stylesheet"/>
 
 		<script src="script/jquery.jgrowl.js"></script>
+		<script src="script/jquery.blink.js"></script>
+		<script src="script/jquery.ticktock.js"></script>
 		<script src="script/jquery.fixheight.js"></script>
-		<script src="script/QueryString.js"></script>
+		<script src="script/Line.js"></script>
+		<script src="script/Date.js"></script>
+		<script src="script/Options.js"></script>
 		<script src="script/EventTarget.js"></script>
 		<script src="script/ReittiopasApi.js"></script>
 		<script src="script/DummyApi.js"></script>
 		<script src="script/Location.js"></script>
 		<script src="script/LocationEvent.js"></script>
 		<script src="script/Log.js"></script>
-		<script src="script/Stop.js"></script>
 		<script src="script/Map.js"></script>
+		<script src="script/StopView.js"></script>
 		<script src="script/Schedules.js"></script>
 		<script src="script/Locator.js"></script>
 		<script src="script/Menoon.js"></script>
-
 		<link href="style/screen.css" rel="stylesheet"/>
 	</head>
 	<body>
-		<div data-role="page" id="main" class="loading">
-			<div data-role="header">
-				<span class="c"></span>
-				<a href="#" class="btnFind">Locate</a>
-				<h2>
-					<span class="t">Menoon</span>
-				</h2>
-			</div>
-			<div data-role="content">
-				<ul data-role="listview" id="stops"></ul>
-			</div>
-		</div>
-		<div data-role="page" id="map">
-			<div data-role="header">
-				<a href="#" data-icon="arrow-l">Return</a>
-				<span class="c"></span>
-				<h2><span class="t">Menoon</span></h2>
-			</div>
-			<div data-role="content">
-				<div class="map"></div>
-			</div>
-		</div>
+		<script>
+			var options = new Options(window.location.search)
+			Log.initialize(options.v)
+			var menoon = Menoon.create()
+			$(document.body).append(menoon)
+			menoon.initialize(options)
+		</script>
 	</body>
-
 	<script type="text/javascript">
 		var _gaq = _gaq || [];
 		_gaq.push(['_setAccount', 'UA-20530172-1']);

@@ -4,8 +4,23 @@ function Locator(options) {
 Locator.available = typeof(navigator.geolocation)!="undefined"
 $.extend(Locator.prototype, EventTarget, {
 	defaults: {
-		positionRetries: 12,
-		positionTimeout: 500
+		positionRetries: 6,
+		positionTimeout: 1000
+	},
+	start: function() {
+		if(this.watchId) {
+			this.stop()
+		}
+		this.watchId = navigator.geolocation.watchPosition(
+			$.proxy(this._located,this),$.proxy(this._error,this),
+			{ timeout:this.options.positionTimeout }
+		)
+		Log.verbose("Begun watching position, token",this.watchId);
+	},
+	stop: function() {
+		navigator.geolocation.clearWatch(this.watchId)
+		delete this.watchId
+		Log.verbose("Stopped watching position");
 	},
 	locate: function(retries) {
 		if(typeof(retries)=="undefined") {
@@ -22,11 +37,13 @@ $.extend(Locator.prototype, EventTarget, {
 			return;
 		}
 		Log.message("Locating ("+retries+" retries left)");
-		this.dispatchEvent(new LocationEvent(null,LocationEvent.PENDING))
+		var e = new LocationEvent(null,LocationEvent.PENDING);
+		e.retries = retries
+		this.dispatchEvent(e)
 		var self = this
 		navigator.geolocation.getCurrentPosition( 
-			function(p) { self._located(p.coords) },
-			function(e) { self._error(retries,e) },
+			$.proxy(this._located,this),
+			$.proxy(function(e) { this._error(e,retries) },this),
 			{ timeout:this.options.positionTimeout }
 		)
 	},
@@ -45,11 +62,16 @@ $.extend(Locator.prototype, EventTarget, {
 			}
 		)
 	},
-	_error: function(retries,e) {
+	_error: function(e,retries) {
 		switch(e.code) {
 			case e.TIMEOUT:
-				Log.verbose("Positioning timeout, retrying")
-				this.locate(retries-1)
+				if(retries>0) {
+					Log.verbose("Positioning timeout, retrying")
+					this.locate(retries-1)
+				} else {
+					Log.verbose("Positioning timeout, retries exhausted")
+					this.dispatchEvent(new LocationEvent(null,LocationEvent.TIMEOUT))
+				}
 				break;
 			case e.POSITION_UNAVAILABLE:
 				Log.error("Positioning unavailable")
@@ -59,11 +81,19 @@ $.extend(Locator.prototype, EventTarget, {
 				Log.error("Positioning not allowed")
 				this.dispatchEvent(new LocationEvent(null,LocationEvent.PERMISSION_DENIED))
 				break;
+			default:
+				Log.error("Unknown error occurred",e.code,e)
 		}
 	},
 	_located: function(p) {
-		Log.verbose("Location received at "+p.latitude+","+p.longitude)
-		var location = new Location(p.latitude,p.longitude)
-		this.setLocation(location)
+		if(this.timer) {
+			clearTimeout(this.timer)
+			delete this.timer
+		}
+		this.timer = setTimeout($.proxy(function(){
+			Log.verbose("Location received",p.coords.latitude,p.coords.longitude,p.coords.accuracy)
+			var location = new Location(p.coords.latitude,p.coords.longitude)
+			this.setLocation(location)
+		},this),1000)
 	}
 });

@@ -1,4 +1,4 @@
-function Location(latitude,longitude,stamp) {
+function Location(latitude,longitude,stamp) {	
 	this.latitude = latitude
 	this.longitude = longitude
 	if(stamp) {

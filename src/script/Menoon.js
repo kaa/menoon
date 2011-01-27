@@ -1,26 +1,68 @@
-﻿$(document).ready(function(){
+﻿var Menoon = {
+	create: function() {
+		var html = 		
+			'<div data-role="page" id="schedules" class="loading">'+
+				'<div data-role="header">'+
+					'<span class="c"></span>'+
+					'<a href="#" class="btnFind">Locate</a>'+
+					'<h2><span class="t">Menoon</span></h2>'+
+				'</div>'+
+				'<div data-role="content"></div>'+
+			'</div>'
+		return $.extend($(html),this)
+	},
+	initialize: function(options) {
+		if(Locator.available) {
+			this.locator = new Locator()
+			this.locator.addEventListener("location",$.proxy(this._onLocationEvent,this))
+			this.find(".btnFind").click($.proxy(this._onLocateClick,this))
+		} else {
+			this.find(".btnFind").hide()
+		}
 
-	var queryString = new QueryString(window.location.search)
-	new Log(queryString["v"])
+		if(Map.available) {
+			this.map = Map.create()
+			this.after(this.map)
+			this.map.initialize()
+			this.map.bind("location",$.proxy(function(e){
+				this.locator.setLocation(e.location)
+			},this))
+			this.find("h2").tap($.proxy(this._onMapClick,this))
+		}
 
-	var pages = {}
-	pages.main = $("#main")
+		this.api = options.d=="a"?
+			new DummyApi():
+			new ReittiopasApi("api/")
 
-	var i = 0
-	var locator = new Locator()
-	locator.addEventListener("location",function(e){
+		this.schedules = Schedules.create()
+		this.find("[data-role=content]").append(this.schedules)
+		this.schedules.initialize(this.api)
+
+		this.page()
+	},
+	_onLocateClick: function(e) {
+		this.locator.locate()
+	},
+	_onMapClick: function(e) {
+		e.preventDefault()
+		e.stopPropagation()
+		$.mobile.changePage("#map","slide",false,false)
+	},
+	_onLocationEvent: function(e) {
 		var display = $("h2 .t")
 		switch(e.status) {
 			case LocationEvent.PENDING:
-				schedules.clearStops()
-				pages.main.addClass("locating")
-				display.text("Locating"+"...".substring(0,(i++)%4))
+				this.schedules.clearStops()
+				this.addClass("locating")
+				display.text("Locating"+"...".substring(0,3-(e.retries)%4))
 				break;
 			case LocationEvent.SUCCESS:
-				pages.main.removeClass("locating")
+				if(e.location.stamp==this.lastLocationStamp) return
+				this.lastLocationStamp = e.location.stamp
+				this.removeClass("locating")
 				display.text(e.location.toReadableString())
-				schedules.showStops(e.location,200)
-				if(map) map.setLocation(e.location)
+				this.schedules.showStops(e.location,200)
+				if(this.map) this.map.setLocation(e.location)
 				break;
 			case LocationEvent.TIMEOUT:
 				display.text("Unable to find position")
@@ -32,63 +74,5 @@
 				display.text("Positioning not allowed")
 				break;
 		}
-	});
-
-	if(Locator.available) {
-		pages.main.find(".btnFind")
-			.click(function(){ 
-				var that = $(this)
-				if(that.attr("data-theme")=="a") {
-					$(this)
-						.removeClass("ui-btn-up-a")
-						.removeClass("ui-btn-hover-b")
-						.attr("data-theme","b")
-				} else {
-					$(this)
-						.removeClass("ui-btn-up-b")
-						.removeClass("ui-btn-hover-b")
-						.attr("data-theme","a")
-				}
-				locator.locate() 
-			})
-	} else {
-		pages.main.find(".btnFind").hide()
 	}
-
-	pages.map = $("#map").fixHeight()
-	if(Map.available) {
-		var map = $.extend(pages.map.find(".map"),Map).initialize()
-			.bind("location",function(e) { locator.setLocation(e.location) })
-
-		pages.main.find("h2")
-			.click(function(){ $.mobile.changePage("#map","slide",false,false) })
-
-		pages.map.find("[data-role=header]")
-			.click(function(){ $.mobile.changePage("#main","slide",true,false) })
-	} else {
-		pages.main.find(".btnMap").hide()
-	}
-
-	pages.main.page()
-	$(document.body).append(pages.main,pages.map)
-
-	var api = (queryString["d"]||"").indexOf("a")>-1?
-		new DummyApi():new ReittiopasApi("api/")
-		
-	window.schedules = new Schedules(api,$("#stops"))
-	locator.locate()
-
-	var blink = 0
-	setInterval(function(){
-		$(".blink").toggleClass("on",(blink++)%2==0)
-	},500)
-
-	setInterval(function(){ 
-		var now = new Date()
-		$(".c").text(now.toTimeString().substring(0,9))
-		if(now.getSeconds()==0) {
-			$(".tick").trigger("tick")
-		}
-	},1000);
-
-});
+}

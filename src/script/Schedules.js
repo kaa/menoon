@@ -1,65 +1,55 @@
-function Schedules(api,element,options) {
-	this.api = api
-	this.element = element||$('<div class="schedules">')
-	this.displays = {}
-	this.options = $.extend(options,this.defaults)
-}
-$.extend( Schedules.prototype, {
-	defaults: {
-		displayClass: Stop
+var Schedules = {
+	create: function() {
+		return $.extend($('<ul>'),this)
+	},
+	initialize: function(api) {
+		this.api = api
+		this.listview()
 	},
 	clearStops: function() {
-		this.element.empty()
-		this.displays = {}
+		this.empty()
 	},
 	showStops: function(position,radius) {
-		Log.message("Requesting stops for",position.latitude,",",position.longitude)
-		$("#main").addClass("loading")
+		Log.message("Requesting stops for",position.latitude,position.longitude)
+		this.addClass("loading")
 		this.clearStops()
-		var that = this
-		this.api.findStops(
-			position, radius,
-			function(stops){
-				that.updateStops(stops)
-				that.element.listview("refresh")
-			}
-		)
+		this.api.findStops(position,radius,$.proxy(this._onStopsLoaded,this))
 	},
-	updateStops: function(stops) {
-		$("#main").removeClass("loading")
+	_onStopsLoaded: function(stops) {
+		this.removeClass("loading")
 		if(stops.length==0) {
-			Log.message("No stops found within a",this.options.searchRadius,"meter radius")
+			Log.message("No stops found")
 			return
 		}
-		Log.verbose("Requesting schedule(s) for",stops.length,"stop(s)")
-		var that = this
-		stops.map(function(stop){ 
-			that.updateStop(stop)
-			that.api.getSchedule(stop,function(){
-				that.updateStop(stop)
-				that.element.listview("refresh")
-			})
-		})
-	},
-	updateStop: function(stop) {
-		Log.verbose("Update",stop,"for stop",stop.code,"with",(stop.schedule||[]).length,"entries")
-		var display = this.displays[stop.code]
-		if(!display) {
-			display = new this.options.displayClass()
-			display.parent = this
-			this.displays[stop.code] = display
-			this.element.append(display.element)
+
+		var toAdd = stops.slice(0,10)
+		Log.verbose("Adding",toAdd.length,"stop(s)")
+		toAdd.map($.proxy(function(stop){ 
+			this.append(StopView.create(stop,this,this.api))
+		},this))
+		if(stops.length>10) {
+			Log.verbose("Keeping",stops.length-10,"in bundle")
+			this.append(StopBundle.create(stops.slice(10),this,this.api))
 		}
-		display.show(stop)
+		this.listview("refresh")
 	},
 	refresh: function() {
-		var sorted = this.element.children("li")
-			.sort(function(e){
-				e = $(e)
-				if(e.hasClass("hidden")) return 1
-				return -1
-			})
-			.detach()
-		this.element.append(sorted).listview("refresh")
+		function sort(a,b){ 
+			a = $(a); b = $(b)
+			var type =
+				(a.hasClass("no-service")?0:a.hasClass("hidden")?1:a.hasClass("bundle")?2:-1)-
+				(b.hasClass("no-service")?0:b.hasClass("hidden")?1:b.hasClass("bundle")?2:-1)
+			if(type!=0) {
+				return type
+			}
+			var distance = 
+				a.data("stop").distance-
+				b.data(b,"stop").distance
+			return distance
+		}
+		console.log("sort")
+		var sorted = this.children().detach().sort(sort)
+		this.append(sorted)
+		this.listview("refresh")
 	}
-})
+};
