@@ -9,7 +9,8 @@ Preferences.save = function() {
 			$.each(value,function(k,v){t.push(k)})
 			value = t
 		}
-		document.cookie = name+"="+encode(value)+"; "+new Date(2020,1,1).toGMTString();
+		if(!value) return
+		document.cookie = "me."+name+"="+encodeURIComponent(value)+"; "+new Date(2020,1,1).toGMTString();
 	})
 }
 Preferences.load = function() {
@@ -17,7 +18,7 @@ Preferences.load = function() {
 		.filter(function(c){ c.substring(0,3)=="me."})
 		.map(function(c){
 			var name = c.substring(3,c.indexOf("="))
-			var value = c.substring(c.indexOf("=")+1)
+			var value = decodeURIComponent(c.substring(c.indexOf("=")+1))
 			if(name=="hidden") {
 				Preferences.items.hidden = {}
 				value.split(" ").map(function(s){

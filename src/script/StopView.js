@@ -55,7 +55,7 @@ var StopView = {
 			'<div class="lines"></div>'+
 			'<div class="imminent"></div>'
 		)
-		this.bind("tock",$.proxy(this.refresh,this))
+		this.bind("tock",$.proxy(this._onTock,this))
 		this.find("h3 a").click($.proxy(this._titleClicked,this))
 		this.find(".hide").click($.proxy(this._hideClicked,this))
 		this.refresh()
@@ -72,6 +72,9 @@ var StopView = {
 		this.show()
 		return
 	},
+	_onTock: function() {
+		this._refreshImminent()
+	},
 
 	update: function(force) {
 		if(!force && false) return
@@ -82,7 +85,7 @@ var StopView = {
 		)
 	},
 	_onScheduleLoaded: function() {
-		Log.verbose("Update",stop,"for stop",stop.code,"with",(stop.schedule||[]).length,"entries")
+		Log.verbose("Update",this.stop,"for stop",this.stop.code,"with",(this.stop.schedule||[]).length,"entries")
 		this.refresh()
 	},
 	_onScheduleError: function() {
@@ -116,16 +119,17 @@ var StopView = {
 				that.addClass(e.line.toLineType())
 			})
 		}
+		this.parent.refresh()
 	},
 
 	_refreshImminent: function() {
 		var rows = (this.stop.schedule||[])
-			.filter(function(e){return e.time>new Date()})
+			.filter(function(e){return e.time.getTime()>new Date().getTime()})
 			.slice(0,2).map(function(entry){
-				var minutes = entry.time.subtractNow().totalMinutes()
+				var time = entry.time.subtractNow()
 				return (
 					"<div>"+
-						"<span class=\"time "+(minutes<2?"soon blink":(minutes>99?"long":""))+"\"><strong>"+minutes+" min</strong></span> "+
+						"<span class=\"time "+(time.totalMinutes()<2?"soon blink":(time.totalMinutes()>60?"long":""))+"\"><strong>"+time.toReadableTime()+"</strong></span> "+
 						"<span class=\"departure\">"+entry.line.toLineString()+" at <strong>"+entry.time.toTimeString().substring(0,5)+"</strong></span>"+
 						"<span class=\"line\">to "+entry.destination+"</span> "+
 					"</div>"

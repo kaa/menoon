@@ -16,6 +16,8 @@
 		.stop.loading { border-color: #ccc; background-image: url(images/icon-loading.png) }
 		.stop.no-service { background-image: url(images/icon-sleep.png) }
 
+	.stop a { color: #2F3E46; text-decoration: none }
+
 	body .stop.hidden { background: #ddd url() 8px 10px no-repeat; padding: 0; border-color: #ccc }
 		.stop.hidden h3 { font-size: 1em; margin: 0; padding: 4px 4px 0 4px }
 			.stop.hidden h3 small,	.stop.hidden .imminent, .stop.hidden .schedule { display: none }
@@ -31,10 +33,10 @@
 
 	.stop .lines { margin: 0 0 4px 0; padding-left: 50px; font-weight: normal; font-size: 0.9em }		
 
-	.stop .imminent { padding: 8px 5px 0 5px; position: relative; overflow: hidden; font-weight: normal; font-size: 0.9em; }
+	.stop .imminent { padding: 8px 5px 0 0px; position: relative; overflow: hidden; font-weight: normal; font-size: 0.9em; }
 	.stop .imminent > div { float: left; width: 50%; min-width: 200px; margin-bottom: 8px; }
 	.stop .imminent .time { float: left; width: 90px; font-size: 26px; text-align: center }
-		.stop .imminent .time.long { font-size: 20px; line-height: 26px; }
+		.stop .imminent .time.long { font-size: 18px; line-height: 28px; }
 		.stop .imminent .time.soon { color: #d00; }
 		.stop .imminent .time.soon.on { color: #600; }
 		.stop .imminent .time strong { font-weight: normal }

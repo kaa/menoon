@@ -3,7 +3,7 @@
 		var html = 		
 			'<div data-role="page" id="schedules" class="loading">'+
 				'<div data-role="header">'+
-					'<span class="c"></span>'+
+					'<span class="clock"></span>'+
 					'<a href="#" class="btnFind">Locate</a>'+
 					'<h2><span class="t">Menoon</span></h2>'+
 				'</div>'+
@@ -57,10 +57,12 @@
 				display.text("Locating"+"...".substring(0,3-(e.retries)%4))
 				break;
 			case LocationEvent.SUCCESS:
-				if(e.location.stamp==this.lastLocationStamp) return
-				this.lastLocationStamp = e.location.stamp
 				this.removeClass("locating")
 				display.text(e.location.toReadableString())
+
+				if(e.location.stamp==this.lastLocationStamp) return
+				this.lastLocationStamp = e.location.stamp
+
 				this.schedules.showStops(e.location,200)
 				if(this.map) this.map.setLocation(e.location)
 				break;

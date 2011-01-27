@@ -59,8 +59,8 @@ ReittiopasApi.parseScheduleLine = function(line) {
 	}
 }
 ReittiopasApi.parseTime = function(time) {
-	var ms = new Date().getTime()
-	ms = ms-(ms%86400000-new Date().getTimezoneOffset()*60*1000);
+	var ms = new Date().getTime()-new Date().getTimezoneOffset()*60*1000
+	ms = ms-ms%86400000;
 	if(time.length==3) {
 		ms += parseInt(time.substring(0,1))*60*60*1000 +
 					parseInt(time.substring(1,3))*60*1000
@@ -68,5 +68,5 @@ ReittiopasApi.parseTime = function(time) {
 		ms += parseInt(time.substring(0,2))*60*60*1000 +
 					parseInt(time.substring(2,4))*60*1000
 	}
-	return new Date(ms)
+	return new Date(ms+new Date().getTimezoneOffset()*60*1000)
 }

@@ -37,19 +37,23 @@ var Schedules = {
 		function sort(a,b){ 
 			a = $(a); b = $(b)
 			var type =
-				(a.hasClass("no-service")?0:a.hasClass("hidden")?1:a.hasClass("bundle")?2:-1)-
-				(b.hasClass("no-service")?0:b.hasClass("hidden")?1:b.hasClass("bundle")?2:-1)
+				(a.hasClass("hidden")?1:a.hasClass("bundle")?2:-1)-
+				(b.hasClass("hidden")?1:b.hasClass("bundle")?2:-1)
 			if(type!=0) {
 				return type
 			}
 			var distance = 
 				a.data("stop").distance-
-				b.data(b,"stop").distance
+				b.data("stop").distance
 			return distance
 		}
-		console.log("sort")
-		var sorted = this.children().detach().sort(sort)
-		this.append(sorted)
-		this.listview("refresh")
+		if(this.refreshDelay) {
+			clearTimeout(this.refreshDelay)
+		}
+		this.refreshDelay = setTimeout($.proxy(function(){
+			var sorted = this.children().detach().sort(sort)
+			this.append(sorted)
+			this.listview("refresh")
+		},this),50)
 	}
 };
