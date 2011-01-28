@@ -6,9 +6,8 @@ verbose(false)
 prefix = File.dirname(__FILE__)
 commit = (ENV['BUILD_VCS_NUMBER'] || `git log -1`[/^commit\s+(.+)$/, 1])[0...8]
 
-
 # Build tools
-minifier = "java -jar \"#{prefix}/bin/compiler.jar\""
+minifier = "java -jar \"#{prefix}/bin/compiler.jar\"" # --compilation_level ADVANCED_OPTIMIZATIONS"
 
 # Miscellaneous
 far_future_header = 
@@ -28,7 +27,7 @@ src_api  = File.join( src, 'api' )
 src_lib  = File.join( src, 'lib' )
 src_css  = File.join( src, 'style' )
 src_html = File.join( src, 'index.html' )
-src_js   = FileList[File.join( src,'script','*.js' )]
+src_js   = FileList[File.join( src,'script','*.js' )] #,File.join( src,'lib','*.js' )]
 
 release           = File.join( prefix, 'release' )
 release_static    = File.join( release, commit )

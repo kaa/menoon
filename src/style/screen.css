@@ -36,7 +36,7 @@
 	.stop .imminent { padding: 8px 5px 0 0px; position: relative; overflow: hidden; font-weight: normal; font-size: 0.9em; }
 	.stop .imminent > div { float: left; width: 50%; min-width: 200px; margin-bottom: 8px; }
 	.stop .imminent .time { float: left; width: 90px; font-size: 26px; text-align: center }
-		.stop .imminent .time.long { font-size: 18px; line-height: 28px; }
+		.stop .imminent .time.long { font-size: 18px; line-height: 32px; }
 		.stop .imminent .time.soon { color: #d00; }
 		.stop .imminent .time.soon.on { color: #600; }
 		.stop .imminent .time strong { font-weight: normal }
