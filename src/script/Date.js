@@ -8,8 +8,8 @@ Date.prototype.totalMinutes = function(){
 }
 Date.prototype.toReadableTime = function() {
 	if(this.getHours()>0) {
-		return this.getHours()+"h "+this.getMinutes()+"min"
+		return this.getHours()+"h "+this.getMinutes()+" min"
 	} else {
-		return this.getMinutes()+"min"
+		return this.getMinutes()+" min"
 	}
 }
