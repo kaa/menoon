@@ -1,7 +1,7 @@
 .clock { position: absolute; top: 10px; right: 10px; }
 
 .schedules { background: white }
-	.stop { background: transparent url() 8px 10px no-repeat; padding: 0 }
+	.stop { background-position: 8px 10px; background-repeat: no-repeat; padding: 0 }
 		.stop.tram  { border-color: #06db00; background-image: url(images/icon-tram.png) }
 			.stop.tram .imminent { background-color: #daffd3 }
 		.stop.bus  { border-color: #3100aa; background-image: url(images/icon-bus.png) }

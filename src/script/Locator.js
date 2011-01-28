@@ -54,7 +54,7 @@ $.extend(Locator.prototype, EventTarget, {
 		}
 		var self = this
 		new google.maps.Geocoder().geocode(
-			{ location: new google.maps.LatLng(location.latitude,location.longitude) },
+			{ location: new google.maps.LatLng(location.latitude,location.longitude), language: "fi" },
 			function(result,status){ 
 				if(!result) return
 				location.addGeocodingResult(result) 
