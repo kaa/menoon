@@ -12,9 +12,18 @@
 		return $.extend($(html),this)
 	},
 	initialize: function(options) {
+		this.api = options.d=="a"?
+			new DummyApi():
+			new ReittiopasApi("api/")
+
+		this.schedules = Schedules.create()
+		this.find("[data-role=content]").append(this.schedules)
+		this.schedules.initialize(this.api)
+
 		if(Locator.available) {
 			this.locator = new Locator()
 			this.locator.addEventListener("location",$.proxy(this._onLocationEvent,this))
+			this.locator.locate()
 			this.find(".btnFind").click($.proxy(this._onLocateClick,this))
 		} else {
 			this.find(".btnFind").hide()
@@ -29,14 +38,6 @@
 			},this))
 			this.find("h2").tap($.proxy(this._onMapClick,this))
 		}
-
-		this.api = options.d=="a"?
-			new DummyApi():
-			new ReittiopasApi("api/")
-
-		this.schedules = Schedules.create()
-		this.find("[data-role=content]").append(this.schedules)
-		this.schedules.initialize(this.api)
 
 		this.page()
 	},

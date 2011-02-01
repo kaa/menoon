@@ -1,6 +1,6 @@
 var StopBundle = {
 	create: function(stops,parent,api) {
-		var e = $.extend($('<li class="bundle">'),this)
+		var e = $.extend($('<li class="stop bundle">'),this)
 		e.initialize(stops,parent,api)
 		return e
 	},
@@ -8,7 +8,7 @@ var StopBundle = {
 		this.api = api
 		this.parent = parent
 		this.stops = stops
-		this.append('<h3>'+this.stops.length+' more</h3>')
+		this.append('<h3>'+this.stops.length+' more...</h3>')
 		this.bind("tap",$.proxy(this._onClicked,this))
 	},
 	_onClicked: function() {
@@ -24,7 +24,7 @@ var StopBundle = {
 			this.remove()
 		}
 		Log.verbose(this.stops.length," stops remain in bundle")
-		this.find("h3").text(this.stops.length+' more')
+		this.find("h3").text(this.stops.length+' more...')
 		this.parent.refresh()
 	}
 }
@@ -42,21 +42,21 @@ var StopView = {
 		this.stop = stop
 		this.attr("data-stopid",stop.code)
 		this.append(
-			'<h3>'+
-				'<a href="#">'+
+			'<a href="#">'+
+				'<h3>'+
 					'<span class="name"></span> '+
 					'<small>'+
 						'<span class="address"></span> '+
 						'<span class="dir"></span>'+
 					'</small>'+
-				'</a> '+
-				'<span class="hide"><span>Hide</span></span>'+
-			'</h3>'+
-			'<div class="lines"></div>'+
-			'<div class="imminent"></div>'
+					'<span class="hide"><span>Hide</span></span>'+
+				'</h3>'+
+				'<div class="lines"></div>'+
+				'<div class="imminent"></div>'+
+			'</a>'
 		)
 		this.bind("tock",$.proxy(this._onTock,this))
-		this.find("h3 a").click($.proxy(this._titleClicked,this))
+		this.click($.proxy(this._titleClicked,this))
 		this.find(".hide").click($.proxy(this._hideClicked,this))
 		this.refresh()
 		this.update()

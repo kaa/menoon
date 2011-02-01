@@ -1,10 +1,9 @@
 var Schedules = {
 	create: function() {
-		return $.extend($('<ul>'),this)
+		return $.extend($('<ul class="schedules">'),this)
 	},
 	initialize: function(api) {
 		this.api = api
-		this.listview()
 	},
 	clearStops: function() {
 		this.empty()
@@ -31,7 +30,6 @@ var Schedules = {
 			Log.verbose("Keeping",stops.length-10,"in bundle")
 			this.append(StopBundle.create(stops.slice(10),this,this.api))
 		}
-		this.listview("refresh")
 	},
 	refresh: function() {
 		function sort(a,b){ 
@@ -47,13 +45,12 @@ var Schedules = {
 				b.data("stop").distance
 			return distance
 		}
-		if(this.refreshDelay) {
-			clearTimeout(this.refreshDelay)
-		}
-		this.refreshDelay = setTimeout($.proxy(function(){
+		//if(this.refreshDelay) {
+		//	clearTimeout(this.refreshDelay)
+		//}
+		//this.refreshDelay = setTimeout($.proxy(function(){
 			var sorted = this.children().detach().sort(sort)
 			this.append(sorted)
-			this.listview("refresh")
-		},this),50)
+		//},this),500)
 	}
 };
