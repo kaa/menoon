@@ -24,14 +24,16 @@
 		<script src="script/LocationEvent.js"></script>
 		<script src="script/Log.js"></script>
 		<script src="script/Map.js"></script>
-		<script src="script/StopView.js"></script>
-		<script src="script/Schedules.js"></script>
+		<script src="script/Stop.js"></script>
+		<script src="script/StopBundle.js"></script>
+		<script src="script/Stops.js"></script>
 		<script src="script/Locator.js"></script>
 		<script src="script/Menoon.js"></script>
 		<link href="style/screen.css" rel="stylesheet"/>
 	</head>
 	<body>
 		<script>
+			Preferences.load()
 			var options = new Options(window.location.search)
 			Log.initialize(options.v)
 			var menoon = Menoon.create()

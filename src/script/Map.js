@@ -42,7 +42,7 @@ var Map = {
 		google.maps.event.addListener(this.map,"click",$.proxy(this._onMapClick,this))
 	},	
 	_onCloseClick: function() {
-		$.mobile.changePage("#schedules","slide",true,false)
+		$.mobile.changePage("#stops","slide",true,false)
 	},
 	_onResize: function(){
 		google.maps.event.trigger(this.map,"resize")

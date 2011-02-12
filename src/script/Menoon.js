@@ -1,7 +1,7 @@
 ﻿var Menoon = {
 	create: function() {
 		var html = 		
-			'<div data-role="page" id="schedules" class="loading">'+
+			'<div data-role="page" id="stops">'+
 				'<div data-role="header">'+
 					'<span class="clock"></span>'+
 					'<a href="#" class="btnFind">Locate</a>'+
@@ -16,9 +16,9 @@
 			new DummyApi():
 			new ReittiopasApi("api/")
 
-		this.schedules = Schedules.create()
-		this.find("[data-role=content]").append(this.schedules)
-		this.schedules.initialize(this.api)
+		this.stops = Stops.create()
+		this.find("[data-role=content]").append(this.stops)
+		this.stops.initialize(this.api)
 
 		if(Locator.available) {
 			this.locator = new Locator()
@@ -53,7 +53,7 @@
 		var display = $("h2 .t")
 		switch(e.status) {
 			case LocationEvent.PENDING:
-				this.schedules.clearStops()
+				this.stops.clearStops()
 				this.addClass("locating")
 				display.text("Locating"+"...".substring(0,3-(e.retries)%4))
 				break;
@@ -64,7 +64,7 @@
 				if(e.location.stamp==this.lastLocationStamp) return
 				this.lastLocationStamp = e.location.stamp
 
-				this.schedules.showStops(e.location,200)
+				this.stops.showStops(e.location,200)
 				if(this.map) this.map.setLocation(e.location)
 				break;
 			case LocationEvent.TIMEOUT:

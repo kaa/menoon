@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+    <title></title>
+		<script src="lib/jquery-1.4.4.min.js"></script>
+		<script src="lib/jquery.mobile-1.0a2.min.js"></script>
+		<link href="lib/jquery.mobile-1.0a2.min.css" rel="stylesheet"/>
+</head>
+<body>
+	<script>
+		
+		var p = '<div data-role="page" id="main" class="loading">'+
+							'<div data-role="header">'+
+								'<span class="c"></span>'+
+								'<a href="#" class="tap">Tap</a>'+
+								'<h2><span class="t">Menoon</span></h2>'+
+								'<a href="#" class="click">Click</a>'+
+							'</div>'+
+							'<div data-role="content"></div>'+
+						'</div>'
+		
+		var page = $(p)
+		$(document.body).append(page)
+		page.page()	
+
+		var Item = {
+			create: function(name) {
+				return $.extend($("<li>"),this)
+					.text(name)
+					.attr("data-stopid",name)
+			}
+		};
+		var List = {
+			create: function() {
+				return $.extend($("<ul>"),this).listview()
+			},
+			add: function(names) {
+				var self = this
+				$.makeArray(names).map(function(e){
+					self.append(Item.create(e))
+				})
+				this.listview("refresh")
+			}
+		};
+		var l = List.create();
+		$("[data-role=content]").append(l)
+		l.add("Pelle")
+		l.add("Olle")
+		$("[data-role=header] a.tap").tap(function(){
+			alert("tap")
+			console.log("tap")
+		})
+		$("[data-role=header] a.click").tap(function(){
+			alert("click")
+			console.log("click")
+		})
+	</script>
+</body>
+</html>
