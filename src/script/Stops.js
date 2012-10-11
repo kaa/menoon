@@ -30,8 +30,13 @@ var Stops = {
 		}
 	},
 	refresh: function() {
-		var sorted = this.children().detach().sort($.proxy(this._sort,this))
-		this.append(sorted)
+		if(this.refreshDelay) {
+			clearTimeout(this.refreshDelay)
+		}
+		this.refreshDelay = setTimeout($.proxy(function(){
+			var sorted = this.children().detach().sort($.proxy(this._sort,this))
+			this.append(sorted)
+		},this),250)
 	},
 	_sort: function(a,b){
 		var a = $(a), b = $(b),

@@ -27,6 +27,7 @@ var Stop = {
 		this.bind("tock",$.proxy(this._onTock,this))
 		this.click($.proxy(this._titleClicked,this))
 		this.find(".favorite")
+			.touchResponsive()
 			.toggleClass("selected",!!Preferences.items.favorites[this.stop.code])
 			.click($.proxy(this._favoriteClicked,this))
 		this.refresh()

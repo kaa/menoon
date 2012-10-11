@@ -24,7 +24,7 @@ ReittiopasApi.prototype.findStops = function(position,radius,success,error) {
 			))
 		},
 		error: function(request,status) {
-			Log.error("Unable to retrieve stops");
+			Log.error("Unable to retrieve stops, "+request.responseText);
 			console.log("Details", status, request.responseText)
 		}
 	});

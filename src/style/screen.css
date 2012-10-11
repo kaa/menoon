@@ -7,7 +7,7 @@
 		background-repeat: no-repeat; 
 		padding: 0; position: relative;
 		list-style-type:none; overflow: hidden; }
-	.stop a { color: #2F3E46; text-decoration: none }
+	.stop a { color: #2F3E46; background: pink; text-decoration: none }
 
 	.stop.no-service { display: none; }
 	.stop.tram  { border-color: #06db00; background-image: url(images/icon-tram.png) }
@@ -30,9 +30,9 @@
 		.stop h3 small { font-weight: normal; font-size: 0.7em; min-width: 200px; }
 		.stop h3 .favorite { position: absolute; right: 10px; top: 10px; width: 30px; height: 30px;
 										     background: url(images/btn-favorite.png) no-repeat; }
+			.stop h3 .favorite.active { background-color: #ddd; border-radius: 5px; }
 			.stop h3 .favorite.selected { background-position: -30px 0; }
 			.stop h3 .favorite span { display: none }
-			x.stop h3 .favorite span { display: none }
 
 	.stop .lines { margin: 0 0 4px 0; padding-left: 50px; font-weight: normal; font-size: 0.9em }		
 

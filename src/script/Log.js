@@ -6,22 +6,26 @@ Log.initialize = function(level) {
 	Log.level = level||1;
 }
 Log.error = function() {
-	console.log(arguments)
+	var message = Array.prototype.slice.call(arguments).join(" ")
+	console.log(message)
 	if(Log.level<1) return
-	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"error"})
+	$.jGrowl(message,{theme:"error"})
 }
 Log.warn = function() {
-	console.log(arguments)
+	var message = Array.prototype.slice.call(arguments).join(" ")
+	console.log(message)
 	if(Log.level<2) return
-	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"warn"})
+	$.jGrowl(message,{theme:"warn"})
 }
 Log.message = function() {
-	console.log(arguments)
+	var message = Array.prototype.slice.call(arguments).join(" ")
+	console.log(message)
 	if(Log.level<3) return
-	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"message"})
+	$.jGrowl(message,{theme:"message"})
 }
 Log.verbose = function() {
-	console.log(arguments)
+	var message = Array.prototype.slice.call(arguments).join(" ")
+	console.log(message)
 	if(Log.level<4) return
-	$.jGrowl(Array.prototype.slice.call(arguments).join(" "),{theme:"verbose"})
+	$.jGrowl(message,{theme:"verbose"})
 }

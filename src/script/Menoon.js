@@ -4,10 +4,11 @@
 			'<div data-role="page" id="stops">'+
 				'<div data-role="header">'+
 					'<span class="clock"></span>'+
-					'<a href="#" class="btnFind">Locate</a>'+
+					'<a href="#" class="btnFind" data-icon="grid" data-iconpos="notext">Locate</a>'+
 					'<h2><span class="t">Menoon</span></h2>'+
 				'</div>'+
-				'<div data-role="content"></div>'+
+				'<div data-role="content">'+
+				'</div>'+
 			'</div>'
 		return $.extend($(html),this)
 	},
@@ -24,7 +25,8 @@
 			this.locator = new Locator()
 			this.locator.addEventListener("location",$.proxy(this._onLocationEvent,this))
 			this.locator.locate()
-			this.find(".btnFind").click($.proxy(this._onLocateClick,this))
+			this.find(".btnFind")
+				.click($.proxy(this._onLocateClick,this))
 		} else {
 			this.find(".btnFind").hide()
 		}
@@ -36,12 +38,15 @@
 			this.map.bind("location",$.proxy(function(e){
 				this.locator.setLocation(e.location)
 			},this))
-			this.find("h2").tap($.proxy(this._onMapClick,this))
+			this.find("h2")
+//				.bind("touchstart touchend mouseup mousedown",function(){ $(this).parent().toggleClass("ui-bar-a").toggleClass("ui-bar-b") })
+//				.click($.proxy(this._onMapClick,this))
 		}
 
 		this.page()
 	},
 	_onLocateClick: function(e) {
+		this.find(".btnFind").toggleClass("ui-btn-active")
 		this.locator.locate()
 	},
 	_onMapClick: function(e) {

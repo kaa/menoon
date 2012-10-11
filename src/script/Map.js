@@ -47,7 +47,7 @@ var Map = {
 	_onResize: function(){
 		google.maps.event.trigger(this.map,"resize")
 		if(this.circle) {
-			this.map.setCenter(this.circle.getCenter())
+			this.map.panTo(this.circle.getCenter())
 		}
 	},
 	_onMapClick: function(e) {
